@@ -30,7 +30,7 @@ _Deduped against the issues + items above. Grouped by theme. The legacy files st
 `/opt/repos/Architecture/` as source; only still-open items are carried here._
 
 ### Promote to ISSUE (bigger than a backlog line; not covered by ADR-001)
-- **Path-2 actuation** (ambient/state-expression): "too dark", "make it cozy", "I'm winding down" → cortex reasons over sensor state + time + occupancy and emits multi-action plans. Distinct from the done Path-1 direct-imperative fast-path. A real capability gap and a THESIS frontier.
+- ~~Path-2 actuation~~ → **PROMOTED to [ISSUE-007](issues/ISSUE-007-path2-ambient-actuation.md)** (2026-08-23): ambient/state-expression commands ("make it cozy") → reasoned multi-action plans.
 - **Time-anchored intentions / reminders scheduler**: "remind me at X / when Y." The Events subsystem is the substrate; no user-facing scheduled-intention path yet.
 - **Right-to-forget / memory purge**: "forget that." Grep confirms zero implementation. A privacy primitive against the LIVE episodic tier — independent of the gated substrate work, so pull it out so it actually gets built.
 - **Contention-surfacing as offered alternative**: "Turning on the kitchen lights. If you want softer, say so." THESIS keystone (the weaver rendering two perspectives); a lighter version could ride the existing dual-cortex output without full substrate. Decide rather than silently bury.
