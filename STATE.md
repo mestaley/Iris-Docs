@@ -5,11 +5,11 @@ _Last verified: 2026-08-22 (live SSH sweep of core-ai / audio-ai / world-ai / vo
 ## Current focus
 Whole-system review DECIDED (ADR-001) and **implemented 2026-08-23** — keep the streaming
 trunk, retune the gate, close two capability gaps, gate the dead writer, prune what's safely
-isolated. Status: **Step 1 DEPLOYED LIVE** (speaker threshold 0.28); **Steps 2/3/5 implemented,
-tested, validated, STAGED on core-ai** (inert until Matt's `sudo systemctl restart`); **Step 4
-partial** (Spotify creds pruned, rest staged as reviewed removals — see ISSUE-004). See ADR-001
-implementation log for the exact restart commands + owed origin pushes.
-Next action = Matt runs the staged core-ai restarts, then soak + re-measure recall/multi-intent.
+isolated. Status: **Steps 1/2/3/5 DEPLOYED LIVE** 2026-08-23 (speaker threshold 0.28 on audio-ai; dual-rail
+multi-intent, creative outcome-grounding, consolidation write hard-gate on core-ai — iris-thalamus/
+iris-cortex-creative/iris-dream-mode restarted 15:01-15:02 UTC, came up clean, trigger timer
+disabled). **Step 4 partial** (Spotify creds pruned, rest staged as reviewed removals — ISSUE-004).
+Next action = soak + re-measure recall/multi-intent from Loki; push owed origin commits.
 
 ## Hosts
 | Host | Role | Mgmt |

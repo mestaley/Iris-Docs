@@ -1,5 +1,5 @@
 # ISSUE-002: Multi-intent collapse — single `tool_intent` drops heterogeneous turns
-- Status: FIXED (thalamus) + STAGED on core-ai, awaiting restart + soak — iris-fusion-fabric commit 2ecf318 makes prefetch flags independent of tool_intent + adds compound few-shots. VALIDATED live against phi3.5 (3/3 compounds emit actuation+correct prefetch; controls/query/conv/memory unchanged). No contract change. End-to-end cortex verbalization of both halves to be confirmed on a live turn after `sudo systemctl restart iris-thalamus`.
+- Status: FIXED (thalamus) + DEPLOYED LIVE 2026-08-23 (iris-thalamus restarted 15:01 UTC, clean) — iris-fusion-fabric commit 2ecf318 makes prefetch flags independent of tool_intent + adds compound few-shots. VALIDATED live against phi3.5 (3/3 compounds emit actuation+correct prefetch; controls/query/conv/memory unchanged). No contract change. End-to-end cortex verbalization of both halves now confirmable on a live turn (soak).
 - Severity: high
 - Area: cognition/routing
 - Discovered: 2026-08-22
