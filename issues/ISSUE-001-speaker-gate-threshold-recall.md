@@ -1,5 +1,5 @@
 # ISSUE-001: Speaker gate threshold (0.35) cuts into the genuine speaker → first-try silence
-- Status: open
+- Status: FIXED + DEPLOYED LIVE 2026-08-23 — `SPEAKER_THRESHOLD` 0.35→0.28 on audio-ai asr-consumer (iris-conditioning commit b086e59); container recreated, `loaded voiceprints: ['matt'] (threshold=0.28)`, all 3 nodes reconnected. Re-measure recall after soak.
 - Severity: high
 - Area: audio/recall
 - Discovered: 2026-08-22

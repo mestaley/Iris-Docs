@@ -1,5 +1,5 @@
 # ISSUE-003: Consolidation cluster is a write-only dead-end (complexity for zero payoff)
-- Status: open
+- Status: WRITE HARD-GATE STAGED 2026-08-23 — iris-fusion-fabric commit 13d66b5: `on_trigger` forces shadow (write-nothing) unless `DREAM_CONSOLIDATION_WRITE_ENABLED=true`. +3 tests, 7/7 green; service.py synced to core-ai (safe pre-restart: only makes dream-mode more conservative). Takes runtime effect on `sudo systemctl restart iris-dream-mode`. Operational belt (disable the nightly trigger timer) still needs Matt's sudo — see staged commands. Per ADR-001 the consolidation CODE is KEPT (roadmap: future read-back wiring), only the writer is gated.
 - Severity: medium
 - Area: memory
 - Discovered: 2026-08-22

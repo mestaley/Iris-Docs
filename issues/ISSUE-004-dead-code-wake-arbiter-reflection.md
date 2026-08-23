@@ -1,6 +1,19 @@
 # ISSUE-004: Dead / vestigial code — wake-arbiter unwired, reflection-coordinator disabled
-- Status: open
+- Status: PARTIAL 2026-08-23. DONE: dead Spotify cred fields removed (world-ai commit 68369bf). CORRECTED: `recall_precedent` is NOT dead-to-delete — it's the read-side scaffolding for the roadmap's "close the read-back" work; per ADR-001 (keep consolidation code, gate the writer) it STAYS. STAGED (need approval + deploy, higher blast-radius than "dead code" implied — see below).
 - Severity: low
+
+## Implementation notes (2026-08-23)
+Verification changed the picture — most removals are not isolated:
+- **DONE** — Spotify cred fields (isolated, zero reads, config-only).
+- **KEEP** — `recall_precedent` (roadmap scaffolding; ADR-001 keeps consolidation code).
+- **STAGED, needs a dedicated change + Matt's deploy:**
+  - **wake-arbiter service** (:8090) — whole component + docker-compose + any systemd; confirmed unwired, but removal is a deploy change.
+  - **Duplicate `vad_consumer.py` / vad-consumer container** — confirm it's not a running dependency, then drop from compose.
+  - **Dormant `fabric_brain` bridge + WAV `/play`** — retire the fallback once no node can un-flip; touches the router.
+  - **Legacy `app.py` shells** (fusion-executive/tool-registry) — entangled with their own `test_app.py` (tool-registry's holds the `_bare_service` regression test); delete file+test together.
+  - **Dead bus topics** (`PERCEPTION_AFFECT_BURST`, `AFFECT_INTERRUPT`, `SESSION_STATE_UPDATE`) — exported from the shared `bus` package; verify no cross-repo importer first.
+  - **`keep_listening`** — a FROZEN-contract field woven through contracts/fusion/curator/cortex-logical/eval/tests. Decision needed: WIRE it (hot-mic follow-up) or remove it (contract change). Not a delete.
+Each of these deserves its own reviewed branch, not a blind sweep.
 - Area: infra / diagnosis-surface
 - Discovered: 2026-08-22
 - Evidence: `ARCHITECTURE.md:346` ("wake-arbiter → STT handoff NOT implemented"); no consumer of `:8090` in iris-conditioning/iris-audio-fabric; `iris-reflection-coordinator` UnitFileState=disabled

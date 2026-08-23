@@ -3,13 +3,13 @@
 _Last verified: 2026-08-22 (live SSH sweep of core-ai / audio-ai / world-ai / voice-ai)._
 
 ## Current focus
-Whole-system review: **"continue down this path, or nuke half of it?"** — **DECIDED, see ADR-001
-(accepted 2026-08-23).** Verdict: keep the streaming trunk, retune the gate, close two capability
-gaps, prune the vestigia. All four investigations (recall/gates, multi-intent, live-subsystem
-harm, pipeline/dead-code) landed 2026-08-22/23. The felt regression traced to four things, none
-of them "the architecture is too complex": recall tuning (ISSUE-001), a routing pre-classifier
-eating multi-intent (ISSUE-002), ungrounded outcome claims (ISSUE-005), and a diagnosis surface
-wider than the fault surface (ISSUE-004). Next action = lower `SPEAKER_THRESHOLD` and measure.
+Whole-system review DECIDED (ADR-001) and **implemented 2026-08-23** — keep the streaming
+trunk, retune the gate, close two capability gaps, gate the dead writer, prune what's safely
+isolated. Status: **Step 1 DEPLOYED LIVE** (speaker threshold 0.28); **Steps 2/3/5 implemented,
+tested, validated, STAGED on core-ai** (inert until Matt's `sudo systemctl restart`); **Step 4
+partial** (Spotify creds pruned, rest staged as reviewed removals — see ISSUE-004). See ADR-001
+implementation log for the exact restart commands + owed origin pushes.
+Next action = Matt runs the staged core-ai restarts, then soak + re-measure recall/multi-intent.
 
 ## Hosts
 | Host | Role | Mgmt |

@@ -63,6 +63,25 @@ it writes only to an isolated tier with no working read endpoint (ISSUE-003).
 - Verification owed before deletion: grep `service.py` for the two `probably-dead` httpx/weather
   rows; confirm the reflection plane is truly unread by any live consumer.
 
+## Implementation log (2026-08-23)
+All five steps implemented same day. Deploy needs Matt's sudo on core-ai (staged, inert until restart).
+1. **Speaker threshold** — ✅ DEPLOYED LIVE. `SPEAKER_THRESHOLD` 0.35→0.28 on audio-ai (iris-conditioning b086e59); container recreated + verified.
+2. **Ground outcome claims** — ✅ implemented + tested (34/34), STAGED. Creative-prompt guardrail (iris-fusion-fabric 34f2400); actuation-failure half was already live.
+3. **Dual-rail multi-intent** — ✅ implemented + VALIDATED live against phi3.5, STAGED. Thalamus prompt (2ecf318); no contract change.
+4. **Prune dead code** — ⚠️ PARTIAL. Spotify creds removed (world-ai 68369bf). recall_precedent KEPT (roadmap). Rest staged — higher blast-radius than expected (frozen-contract field, shared bus package, whole-service deploys). See ISSUE-004.
+5. **Hard-gate consolidation writer** — ✅ code guard implemented + tested (7/7), STAGED. dream-mode (iris-fusion-fabric 13d66b5). Operational timer-disable needs sudo.
+
+Commits owed to origin (automation can't push): iris-fusion-fabric {13d66b5, 2ecf318, 34f2400} + prior 40a20f1; iris-conditioning b086e59 + prior 261e4db; world-ai 68369bf + prior 12561ec.
+
+Staged core-ai deploy (Matt's sudo), restart order safe as listed:
+```
+sudo systemctl restart iris-thalamus            # step 3 (multi-intent)
+sudo systemctl restart iris-cortex-creative     # step 2 (grounding)
+sudo systemctl restart iris-dream-mode          # step 5 (write gate active)
+sudo systemctl disable --now iris-dream-mode-trigger.timer   # step 5 operational belt
+```
+Rollback: `git checkout` the component + restart; or revert the specific commit.
+
 ## Open threads (not blocking this decision)
 - Basement lux replacement (radar-only vs standalone sensor).
 - Task #31 (arm await window for proactive reply-inviting turns), Task #29 (fuse text valence).
