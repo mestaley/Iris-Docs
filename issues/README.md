@@ -18,4 +18,5 @@ the file and record the fix + commit.
 - ISSUE-001 — Speaker gate threshold cuts into genuine speaker → first-try silence (high, open)
 - ISSUE-002 — Multi-intent collapse: single `tool_intent` drops actuate+query turns (high, open)
 - ISSUE-003 — Consolidation cluster is a write-only dead-end (medium, open)
-- ISSUE-004 — Dead code: wake-arbiter unwired, reflection-coordinator unit disabled (low, open)
+- ISSUE-004 — Dead code: wake-arbiter, fabric_brain bridge, legacy shells, dup VAD, etc. (low, open)
+- ISSUE-005 — Cortex speech not grounded in tool results → "articulate lie" family (high, open)

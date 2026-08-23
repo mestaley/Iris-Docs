@@ -13,6 +13,10 @@ Prioritized. Promote items to `issues/` once they're concrete enough to act on.
 - Task #31 (banked): arm the no-wake await window for proactive reply-inviting turns (e.g. "go for it" to a briefing offer). Verify `FOLLOWUP_WINDOW_S=6`.
 - Task #29: fuse text valence (DistilBERT SST-2) into AffectInfo `source="fused"`.
 
+## Watch (latent, not currently biting)
+- `tool-registry control_device` schema advertises a `'data'` object but dispatch reads flat args (ARCHITECTURE.md:346). Actuation works today because the cortex sends flat args; would bite if a model followed the advertised schema. Reconcile the schema with dispatch.
+- Confirm the two `probably-dead` rows before deleting: grep `fusion-executive/.../service.py` for httpx/`recall_precedent` call sites; grep tool-registry for `current_weather` dispatch. Now doable — SSH to core-ai is live again.
+
 ## Later / speculative
 - Presence census go-live once dog-baseline calibration holds.
 - Migrate scattered canonical docs (THESIS.md, EVENTS.md, PRESENCE_FUSION.md, per-repo STATE/BACKLOG) into this repo or link them from here.

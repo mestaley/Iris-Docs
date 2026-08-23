@@ -3,11 +3,13 @@
 _Last verified: 2026-08-22 (live SSH sweep of core-ai / audio-ai / world-ai / voice-ai)._
 
 ## Current focus
-Whole-system review: **"continue down this path, or nuke half of it?"** Four parallel
-investigations (recall/gates, multi-intent, live-subsystem harm, pipeline/dead-code) run
-2026-08-22. Findings seeded into `issues/` and `decisions/ADR-001`. The felt regression
-("everything feels worse, she used to answer every time") traced to two structural causes,
-not the mechanical bugs already fixed. See ISSUE-001 (recall) and ISSUE-002 (multi-intent).
+Whole-system review: **"continue down this path, or nuke half of it?"** — **DECIDED, see ADR-001
+(accepted 2026-08-23).** Verdict: keep the streaming trunk, retune the gate, close two capability
+gaps, prune the vestigia. All four investigations (recall/gates, multi-intent, live-subsystem
+harm, pipeline/dead-code) landed 2026-08-22/23. The felt regression traced to four things, none
+of them "the architecture is too complex": recall tuning (ISSUE-001), a routing pre-classifier
+eating multi-intent (ISSUE-002), ungrounded outcome claims (ISSUE-005), and a diagnosis surface
+wider than the fault surface (ISSUE-004). Next action = lower `SPEAKER_THRESHOLD` and measure.
 
 ## Hosts
 | Host | Role | Mgmt |
