@@ -23,7 +23,8 @@ ISSUE-001…007. This changelog directory + workflow was created at the end of t
 - `PATTERNS.md` — **added** — ~20 engineering patterns ported + 3 stale examples annotated. (`f48ee29`, `4c97934`)
 - `issues/ISSUE-001…007` — **added** — speaker-gate recall, multi-intent collapse, consolidation dead-end, dead-code, cortex-blind-to-tool-results, honest-backend-errors, Path-2 actuation.
 - `BACKLOG.md` — **changed** — merged ~25 legacy items (deduped), 5 ISSUE candidates, Davis flag (resolved). (`f48ee29`, `4c97934`)
-- `changelog/` — **added** — this directory + its `README.md` (workflow spec) + this entry.
+- `changelog/` — **added** — this directory + its `README.md` (workflow spec) + this entry. (`8e45eda`)
+- `CLAUDE.md` — **added** — workspace operating guide (SSOT pointer + required end-of-session changelog workflow); symlinked at `/opt/repos/CLAUDE.md` so it loads every session. (`8e45eda`)
 
 ### iris-fusion-fabric (feat/events-queue) — STAGED/LIVE on core-ai
 - `dream-mode/src/dream_mode/service.py` — **changed** — consolidation write hard-gate: `on_trigger` forces shadow unless `DREAM_CONSOLIDATION_WRITE_ENABLED=true`. LIVE. (`13d66b5`)
@@ -54,4 +55,4 @@ doubled-domain HA service fix; iris-conditioning `261e4db` leading-homophone res
 - **Run the re-enrollment** in a quiet room (ISSUE-001) — the durable recall fix.
 - **Redo multi-intent** with an eval harness + tune the working-memory field (ISSUE-002).
 - **ISSUE-006** (honest backend errors), **ISSUE-007** (Path-2 actuation), and the 4 other promoted candidates in BACKLOG.
-- Deferred doc merges: DDS topic-table reference appendix, PROMPTS.md re-derived from live code, Core-Substrate-as-history.
+- **Deferred doc merges — explicitly QUEUED for next session** (BACKLOG "Queued for next session"): `reference/DDS-FABRIC.md` (topic/HTTP/RTOS tables + diagrams, router-TTS leg corrected + vg-03 added), `PROMPTS.md` re-derived from live `prompt.py` + legacy rationale/history/7 test cases, and `history/CORE-SUBSTRATE.md` (sync-era/roadmap, labeled). Sources remain in `/opt/repos/Architecture/`.

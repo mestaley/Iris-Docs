@@ -8,6 +8,12 @@ Prioritized. Promote items to `issues/` once they're concrete enough to act on.
 3. **ISSUE-006** — say a backend errored (503) instead of vaguely deflecting.
 4. Prune the confirmed-dead set (ISSUE-004); consolidation writer already gated (ISSUE-003).
 
+## Queued for next session — deferred doc merges (from the 2026-08-23 Architecture/ review)
+Sources still in `/opt/repos/Architecture/`; the review triage is in that session's changelog + the reviewers' recommendations captured across THESIS/PATTERNS/PRINCIPLES.
+1. **`reference/DDS-FABRIC.md`** — fold in the legacy `Architecture/ARCHITECTURE.md` deep-reference layer: the DDS **topic table** (constant→string→payload→producers/consumers), the **HTTP edge table** (incl. the `(L)` legacy-shell annotations — supports ISSUE-004), **RTOS priorities**, and the 3 **Mermaid diagrams**. CORRECT before porting: the retired router-TTS→`/play` leg (live is `fusion→iris/speech/utterance→speech-output→Kokoro→SpeechSink`), and add the **vg-03** bedroom node. The tight hot-path narrative stays in `ARCHITECTURE.md`; this is the appendix it omits.
+2. **`PROMPTS.md`** — port the legacy `Architecture/PROMPTS.md` **rationale + prompt-change history + 7 regression test cases**, but **re-derive the prompt bodies from live `*/src/*/prompt.py`** (the old bodies are stale — creative is now two-pass with many sections the doc lacks; thalamus schema added prefetch_*/news_query). Add the standing rule: "change a prompt in code → update this file in the same commit." Note ISSUE-005 as the resolution of the doc's "actuation-honesty is a stopgap" debt.
+3. **`history/CORE-SUBSTRATE.md`** (or a `decisions/` roadmap ADR) — preserve legacy `Core Substrate.md` as CLEARLY-LABELED sync-era/roadmap history: keep the three-loop model + four-pass dream-mode spec (the consolidation roadmap ADR-001 protects); discard the build-order schedule and normative contract sketches; label the whole thing so no one mistakes its sync-era diagrams for the live architecture.
+
 ## Owed / housekeeping
 - Push owed commits from Matt's shell: `12561ec` (world-ai), `40a20f1` (fusion-fabric), `261e4db` (conditioning).
 - Basement lux replacement decision — standalone lux sensor, or basement stays radar-only? (affects LightingArbiter basement offers)
@@ -21,7 +27,7 @@ Prioritized. Promote items to `issues/` once they're concrete enough to act on.
 ## Later / speculative
 - Presence census go-live once dog-baseline calibration holds.
 - Migrate remaining scattered canonical docs (EVENTS.md, PRESENCE_FUSION.md, per-repo STATE/BACKLOG) into this repo or link them. _(THESIS/PATTERNS/PRINCIPLES/legacy-DECISIONS merged 2026-08-23.)_
-- Deferred merge: fold the legacy `Architecture/ARCHITECTURE.md` DDS **topic table + HTTP edge table + RTOS priorities + Mermaid diagrams** into a `reference/DDS-FABRIC.md` appendix (correct the retired router-TTS→speech-output leg; add vg-03 bedroom node). The tight hot-path narrative stays in `ARCHITECTURE.md`; this is the deep reference layer. Also port `Architecture/PROMPTS.md` rationale + the 7 regression test cases into a `PROMPTS.md` **re-derived from live `prompt.py` files** (the old bodies are stale). Preserve `Architecture/Core Substrate.md` as a clearly-labeled sync-era/roadmap history doc (the three-loop model + four-pass dream-mode spec = the consolidation roadmap ADR-001 protects).
+- Deferred doc merges (DDS reference appendix, live-derived PROMPTS.md, Core-Substrate-as-history) — see the "Queued for next session" section above.
 
 ---
 
