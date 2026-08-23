@@ -12,11 +12,14 @@ known-broken." That fragmentation *is* the complexity problem. This repo shrinks
 
 | File / dir | What it holds |
 |---|---|
+| `THESIS.md` | The canonical intent — what Iris fundamentally is. The evaluation filter for all work. |
+| `PRINCIPLES.md` | Vision (Jarvis target), methodological commitments, what Iris is NOT, working agreement. |
 | `STATE.md` | The live dashboard — hosts, running services, what's live / observe-only / dead, current focus. Update when reality changes. |
 | `ARCHITECTURE.md` | The per-turn hot path, service inventory, and where a turn actually goes now. |
+| `PATTERNS.md` | Durable engineering patterns (each with the incident that motivated it). Check before re-inventing. |
 | `BACKLOG.md` | Prioritized backlog, one line per item. |
 | `issues/` | One file per known issue (`ISSUE-NNN-slug.md`), with status + evidence. |
-| `decisions/` | Architecture Decision Records (`ADR-NNN-slug.md`) — one per irreversible-ish call. |
+| `decisions/` | Architecture Decision Records (`ADR-NNN-slug.md`) — one per irreversible-ish call. `HISTORICAL-DECISIONS.md` holds the still-in-force decisions ported from the legacy log. |
 
 ## Conventions
 - Plain markdown only — greppable, diffable, git-native. That's the point.

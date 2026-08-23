@@ -15,6 +15,13 @@ New: **ISSUE-006** (say a backend 503 honestly, don't deflect) — captured, del
 Note: Meridian weather flapped 502/503 ~15:05, recovered ~15:08 (transient).
 Next: re-enroll voiceprint when quiet; redesign multi-intent + field tuning with evals; push owed commits.
 
+**Docs consolidated 2026-08-23:** Matt's legacy `/opt/repos/Architecture/` notes reviewed (4-agent
+fan-out) and merged — added `THESIS.md` (canonical), `PRINCIPLES.md`, `PATTERNS.md`,
+`decisions/HISTORICAL-DECISIONS.md`, and ~25 still-open items into `BACKLOG.md` (incl. 5 ISSUE
+candidates: Path-2 actuation, intentions scheduler, right-to-forget, contention-surfacing,
+cognitive-event-stream). Deferred: DDS topic-table reference appendix, PROMPTS.md re-derived from
+live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard prompt rule.
+
 ## Hosts
 | Host | Role | Mgmt |
 |---|---|---|
