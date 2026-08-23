@@ -5,11 +5,15 @@ _Last verified: 2026-08-22 (live SSH sweep of core-ai / audio-ai / world-ai / vo
 ## Current focus
 Whole-system review DECIDED (ADR-001) and **implemented 2026-08-23** — keep the streaming
 trunk, retune the gate, close two capability gaps, gate the dead writer, prune what's safely
-isolated. Status: **Steps 1/2/3/5 DEPLOYED LIVE** 2026-08-23 (speaker threshold 0.28 on audio-ai; dual-rail
-multi-intent, creative outcome-grounding, consolidation write hard-gate on core-ai — iris-thalamus/
-iris-cortex-creative/iris-dream-mode restarted 15:01-15:02 UTC, came up clean, trigger timer
-disabled). **Step 4 partial** (Spotify creds pruned, rest staged as reviewed removals — ISSUE-004).
-Next action = soak + re-measure recall/multi-intent from Loki; push owed origin commits.
+isolated. Status after first live soak (2026-08-23 15:03-15:20):
+- **Step 1 (speaker 0.28)** — live, HELPED but INSUFFICIENT: genuine Matt still rejected at cos ~0.26 on vg-02 → re-enroll voiceprint (BANKED, room too noisy). Did NOT admit TV. (ISSUE-001)
+- **Step 2 (grounding)** — live, WORKING ("Getting the basement lights" = clean honest ack). (ISSUE-005)
+- **Step 3 (dual-rail multi-intent)** — **REVERTED** (cc116f3, thalamus restarted 15:20): caused live over-prefetch; baseline phi3.5+working-memory-field over-prefetch is a separate pre-existing tuning problem. Redo with an eval harness. (ISSUE-002)
+- **Step 5 (consolidation write gate)** — live + trigger timer disabled.
+- **Step 4** — Spotify creds pruned; rest staged (ISSUE-004).
+New: **ISSUE-006** (say a backend 503 honestly, don't deflect) — captured, deliberate fix pending.
+Note: Meridian weather flapped 502/503 ~15:05, recovered ~15:08 (transient).
+Next: re-enroll voiceprint when quiet; redesign multi-intent + field tuning with evals; push owed commits.
 
 ## Hosts
 | Host | Role | Mgmt |

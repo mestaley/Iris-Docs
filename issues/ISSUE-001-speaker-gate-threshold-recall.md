@@ -1,5 +1,6 @@
 # ISSUE-001: Speaker gate threshold (0.35) cuts into the genuine speaker → first-try silence
-- Status: FIXED + DEPLOYED LIVE 2026-08-23 — `SPEAKER_THRESHOLD` 0.35→0.28 on audio-ai asr-consumer (iris-conditioning commit b086e59); container recreated, `loaded voiceprints: ['matt'] (threshold=0.28)`, all 3 nodes reconnected. Re-measure recall after soak.
+- Status: PARTIALLY IMPROVED — `SPEAKER_THRESHOLD` 0.35→0.28 DEPLOYED LIVE 2026-08-23 (iris-conditioning b086e59). Helped the 0.30-0.35 band, BUT live soak (15:04-15:07) still shows genuine Matt REJECTED on vg-02 at cos **0.260** ("turn the basement lights on") and **0.266** ("Fires. turn the basement lights off") → he repeated (retries scored 0.427, 0.518). Verified NOT TV — all rejects were genuine wake-word commands; noise/echo bursts scored ≤0.206. 0.28 didn't re-admit TV (good), but Matt's first-utterance cosine on vg-02 bottoms at ~0.26 with huge burst-to-burst variance (0.26→0.52, same mic, seconds apart).
+- **NEXT: RE-ENROLL the voiceprint (durable fix, BANKED — deferred 2026-08-23, too much background noise to enroll).** A 0.26 self-match is abnormally low (healthy 0.4-0.6); the June vg-02 print is likely weak/stale. Re-enroll: `ENROLL_SPEAKER=matt` + `ENROLL_NODE=vg-02` on asr-consumer, recreate, speak ~10x in a quiet room, clear ENROLL_SPEAKER, recreate. Optional interim stopgap: drop `SPEAKER_THRESHOLD` to 0.25 (catches the 0.26 rejects, edges toward EER/TV-risk — prefer the re-enroll).
 - Severity: high
 - Area: audio/recall
 - Discovered: 2026-08-22
