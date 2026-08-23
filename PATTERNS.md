@@ -177,6 +177,13 @@ Didn't work: "Don't reach for Davis as a punchline; mention him only when direct
 
 Same intent, very different outcomes. The first works because models obey strong directives more reliably than they internalize style guidance.
 
+> **UPDATE 2026-08-23:** the Davis example is now the *wrong* goal — the live anchor deliberately
+> uses the soft/grounded form, because **grounded Davis references are fine and wanted** (Matt).
+> The real target was never silence; it was avoiding *ungrounded* punchline drops — a grounding
+> problem (ISSUE-005 family), not a case for a blanket prohibition. The pattern (hard rules beat
+> soft ones for a hard constraint) still holds where the constraint really is absolute; picking a
+> less absolute example would state it more cleanly.
+
 Phase 1.x extension: hard rules ALSO need scoped trigger conditions. The GROUND TRUTH preamble had a hard "state these values when asked" rule that misfired on adjacent question shapes. The fix was to scope WHEN the rule applies, not just HOW strongly. "ONLY mention X if explicitly asked... For any other request, DO NOT mention." Hard rule plus explicit trigger plus explicit anti-trigger.
 
 ---

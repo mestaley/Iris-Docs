@@ -37,7 +37,7 @@ _Deduped against the issues + items above. Grouped by theme. The legacy files st
 - **Cognitive event stream** (`emit_cognitive_event`, Loki `event_class=cognitive`): designed, never built; partly overlapped by the turn-tracing dashboard. Keep-or-kill decision now that consolidation is gated.
 
 ### Cognition / correctness
-- **DECIDE (flagged from the doc review):** the legacy `PROMPTS.md` documents a HARD "don't mention Davis" rule and notes the SOFT version "failed — Davis showed up in 3 of 4 turns." But the LIVE curator `IDENTITY_ANCHOR` uses the soft phrasing. Either the hard rule was silently walked back, or Davis is creeping back into replies. Matt's call: is she over-referencing Davis? If so, restore the hard rule ([[PATTERNS]] "Hard prompt rules > soft suggestions").
+- **RESOLVED 2026-08-23 (Matt):** the Davis soft/grounded anchor is INTENTIONAL — "Davis references are fine if grounded." The live curator `IDENTITY_ANCHOR` ("mention him only when he's directly relevant") is correct; do NOT restore the legacy hard "never mention Davis" rule. The only failure mode to watch is UNGROUNDED Davis drops (punchline reflex), which is the ISSUE-005 grounding family, not a separate identity rule.
 - `entity_id` normalization guard — cortex-logical ~5% drops a compound-command entity_id missing its domain prefix (`dining_room_lights` vs `light.dining_room_lights`). Resolve canonical form from entity_mappings before building the ToolCall.
 - Iris self-maintains entity mappings — every "the dining lights" clarification is free training data for the mapping table; never built. Cheap, compounding; attacks the entity_id pain above.
 
