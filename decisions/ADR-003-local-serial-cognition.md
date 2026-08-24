@@ -31,6 +31,32 @@ parallel pluralism.**
 "cortex configuration is not load-bearing," "substrate implementation is not predetermined."
 Parallel pluralism was one *mechanism*; serialism is a legal realization of the same goal.
 
+**Reconception of "cognitive pluralism" (Matt, 2026-08-24) — it's escalation, not parallel
+contention.** Pluralism here means *the right depth of cognition for the turn*, and the
+intelligence lives in the **punt decision** — NOT many models arguing in parallel, and NOT one
+model grinding extra passes it's no better equipped for (a 2nd pass of the same model isn't
+smarter; punting to a bigger model is). Architecture: the front door handles the turn in one
+efficient pass, and **knows when to punt** to the deep tier.
+
+**The core hard problem is the punt decision — metacognition: how does a model know a turn is
+beyond it?** (Models are overconfident exactly when wrong, so this is non-trivial.) Punt-signal
+design space:
+- **Escalate-as-a-tool** — the front door calls an `escalate`/`deliberate` tool when it judges
+  the turn hard (routing-as-tool-call pointed at *depth*). Clean; leans on self-judgment.
+- **Structural difficulty** — compound/multi-step, ambiguity, novelty-vs-routine, long context.
+- **Affect (thesis-relevant, live)** — prosodic affect is LIVE; frustration / emotional register
+  is a strong punt signal. Hard-conversation validation targets should always punt. Ties the punt
+  decision to the thesis's affect commitment.
+- **Self-confidence** — cheap but poorly calibrated; don't trust alone.
+- **Reactive / failure-driven** — attempt, then punt if the answer fails / verify flags it.
+  Reliable but pays the failed attempt's latency.
+Tension: **proactive** punt (fast, needs good difficulty estimation) vs **reactive** (reliable,
+slower). Lean hybrid — proactive on the cheap strong signals (affect, obvious complexity, an
+explicit `escalate` call), reactive as backstop. The punt is **serial and late-tolerant**: the
+deep tier runs async and **barges in** with the better answer when it lands (reuse the existing
+barge-in). Existing primitives to build on: `needs_clarification` (→ a structured
+`needs_escalation`), the logical supervisor (reactive-escalation primitive), and barge-in.
+
 **Contention / pluralism = deferred to a RENTED experimentation lab, not local hardware.**
 It is the unproven capability — never worked as built, and possibly not what Matt wants. Don't
 commit scarce local VRAM to it. Two reasons to rent rather than cram it locally:
@@ -48,6 +74,19 @@ the thesis-consistent endgame is buying the local GPU for it.
 ## Open tunable
 Front-door latency: keep the world-ai `7b` as a sub-second reflex *in front of* the 14B-class
 front door, or fold everything into the one model and accept ~1s on trivial turns. Cheap to try both.
+
+## Why this fits the existing substrate (DDS + RTOS) — near-zero friction
+The punt/escalation model maps directly onto what's already built — a strong argument for it
+(the primitives exist; the substrate was arguably ahead of the cognition model):
+- **DDS (pub/sub, async):** the punt is a *message* — the front door publishes an escalation; the
+  deep tier is another subscriber that produces a **late** answer that barges in on the existing
+  speech/decision topics. DDS exists for "streams arriving at different times."
+- **RTOS (SCHED_FIFO):** the tiers are a **priority hierarchy** — fast front door at high priority
+  (bounded latency), deep MoE at low/best-effort priority (takes as long as it needs, never
+  preempts the real-time path). Textbook mixed-criticality scheduling; the punt is a priority handoff.
+- **Barge-in / "async streams interleaved":** the streaming machinery fit parallel-contention
+  poorly (half of why fusion's v0/v1/v2 reconciliation is a mess) and fits escalation naturally —
+  a late deep stream barging a fast one. The substrate was built for *this*.
 
 ## Consequences
 - Simpler, more legible cognition: a serial ladder replaces the parallel v0/v1/v2 fusion race →
