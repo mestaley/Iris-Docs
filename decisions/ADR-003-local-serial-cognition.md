@@ -38,6 +38,17 @@ model grinding extra passes it's no better equipped for (a 2nd pass of the same 
 smarter; punting to a bigger model is). Architecture: the front door handles the turn in one
 efficient pass, and **knows when to punt** to the deep tier.
 
+**Framing (the elevator pitch):** this is effectively a **Mixture-of-Experts lifted from the
+token/weight level to the turn/system level** — but the gating is an **explicit, inspectable,
+programmable punt policy** (affect / `escalate` tool / verify-backstop), not a learned black-box
+softmax, and the "experts" are heterogeneous whole models on a priority-scheduled DDS bus. Sparse-
+activation efficiency *without surrendering routing control to the weights* — the ADR-001
+diagnosis-surface instinct applied to cognition. In ways it's more than a real MoE: heterogeneous
+(even rentable) experts, a router that sees affect/history/failure-feedback, and *reactive* routing
+(try-then-punt after seeing a weak answer — which a real MoE, committing before it computes, cannot
+do). Recursion worth noting: the deep expert is itself a real MoE — explicit gating outside, learned
+gating inside.
+
 **The core hard problem is the punt decision — metacognition: how does a model know a turn is
 beyond it?** (Models are overconfident exactly when wrong, so this is non-trivial.) Punt-signal
 design space:
