@@ -5,6 +5,14 @@ explicit programmable router"). Code-grounded, with an **incremental, reversible
 this touches the live cognition core, so never big-bang. See [ADR-003](../decisions/ADR-003-local-serial-cognition.md)
 for the decision + rationale; this is the how._
 
+> **Sequencing (Matt, 2026-08-24): PARALLEL with the web UI, not after it.** The two builds share
+> ONE interface — the **Turn Contract (§1.5)** — which is the same contract the web UI's text→fabric
+> bridge builds against. Per HD-10 (architecture-is-sovereign): the UI builds against the contract
+> once; the new front-door cognition swaps in **behind** it, invisibly. The Turn Contract is
+> therefore the critical shared surface and is pinned first (it's the tonight slice, §5.0). New
+> cognition is built as NEW code ALONGSIDE the live 2-cortex ([[PATTERNS]] production/failsafe
+> coexistence) — nothing deployed or cut over until each migration step is validated.
+
 ## 0. Current state (live-verified 2026-08-24)
 - **GPUs:** core-ai 2× RTX 5080, **16303 MiB each**.
   - GPU0: `qwen2.5:14b` 9.7 GB + `nomic-embed` 0.6 GB → **5.4 GB free**.
@@ -23,6 +31,51 @@ A **1-D-plus-1-D expert pool** with an explicit router:
 - **Voice ownership moves to the front door.** Gemma retires; the front-door/logical model streams its own pass-1 prose for first-audio (it already produces `proposed_say`). Utilitarian voice is acceptable (Matt).
 - **The router = the punt policy** (§3), explicit and programmable — the whole point vs a weight-baked MoE.
 
+## 1.5 The Turn Contract — the shared interface with the UI bridge (FIRST-CLASS)
+The single interface both the web UI and the new cognition build against. **It already exists and
+is surface-agnostic** — the fabric consumes `FeatureStream` and emits `SpeechUtterance` (text
+deltas — TTS is just one consumer) + `FusionDecision`. Voice is one publisher; the web bridge is
+another. The new front-door **consumes/produces this identical contract**, so it swaps in behind the
+bridge with zero UI change (HD-10). **Do not invent a new turn shape — extend the existing one.**
+
+### Turn-IN — publish a `FeatureStream` (`iris/perception/feature_stream`), web-node variant
+Existing shape (`contracts/.../perception.py`), with web values:
+| Field | Voice | **Web bridge** |
+|---|---|---|
+| `turn_id` | `turn-…` (auto) | same (bridge mints or echoes) |
+| `asr.text` | Canary transcript | the typed text |
+| `asr.confidence` / `asr.asr_model` | whisper score | `1.0` / `"text"` (provenance) |
+| `speaker.verified_id` / `.confidence` | ECAPA result | `"matt"` / `1.0` — **surface-authenticated; bypasses the ECAPA gate** (the web session is the auth) |
+| `spatial.origin_node` / `.origin_room` | vg-0x / room | `"web:<session>"` / `null` |
+| `affect` | prosody (live) | neutral (or future text-valence) |
+| wake event | matched phrase | omitted — surface-addressed, no wake needed |
+| `trace.session_id` | conversation id | **the session to attach/resume** |
+
+### Response-OUT — subscribe by `turn_id`
+- **Streaming (default):** `SpeechUtterance` (`iris/speech/utterance`) — `utterance_id`, `turn_id`,
+  `text_delta`, `seq` (buffer/order on this), `final`, `cause` (`reply|correction|…`). Render deltas
+  as streaming text. A **punt/deep-tier answer arrives as a later `SpeechUtterance` with
+  `cause=correction`** — the UI shows it as Iris refining her answer (the barge-in, as text).
+- **Blocking/canonical:** `FusionDecision` (`iris/fusion/decision`) — `turn_id`, `say` (final text),
+  actions taken. The authoritative record; the bridge can await this instead of streaming.
+
+### Session-attach / resume (the ISSUE-008 continuity point)
+`trace.session_id` on the turn-in attaches the turn to a conversation. **Resume across surfaces**
+(pick up a voice conversation in text) = same `session_id`, and the fabric **reconstructs that
+session's context from recent turns + memory** — because the working-memory field is RAM/per-process
+and does NOT survive a surface hop. This needs the durable conversation log (ISSUE-008) as the
+rebuild source. **Contract obligation on cognition:** the front door must honor an inbound
+`session_id` by loading that session's reconstructed context, not cold-starting.
+
+### The HTTP face (built by the UI worker; reconciled by the coordinator)
+A **web-gateway** translates HTTP↔DDS: `POST /turn {text, session_id, stream?}` → publish
+FeatureStream → subscribe SpeechUtterance/FusionDecision for that `turn_id` → stream back (SSE/WS
+deltas) or return the FusionDecision (blocking). The gateway is the shared piece; the DDS contract
+above is the invariant. **Streaming vs blocking is a per-request bridge choice** — both ride the same
+DDS messages. NB: publishing a FeatureStream to the LIVE bus makes Iris actually process/speak — so
+gateway dev happens on a non-production DDS domain or against the new front-door in isolation, never
+firing live turns during the build.
+
 ## 2. Front-door consolidation (thalamus → tool-call)
 Today routing is a *classification* (`thalamus` phi3.5 emits `RoutingDecision`; the weak link behind ISSUE-002 over-prefetch). Target: routing is a **tool-call** the front door makes natively.
 - The front-door model, per turn, either (a) calls the device/query tool + speaks (handles it), (b) defers, or (c) **calls an `escalate` tool** / sets the punt signal (§3). Prefetch stops being a separate classifier decision — the model just calls the query tool it needs (grounded by curator's entity/ambient injection, per [[PATTERNS]] "curator injects everything").
@@ -31,6 +84,13 @@ Today routing is a *classification* (`thalamus` phi3.5 emits `RoutingDecision`; 
 
 ## 3. The punt / escalate mechanism (the core problem — metacognition)
 **Signal transport:** a new **dedicated topic `iris/punt/requested`** + a `PuntRequest` contract (mirrors `FastPathFired` — keeps `CortexResponse`/`FusionDecision` frozen wire stable). Carries `turn_id`, `reason` (enum: `self_uncertain|affect|complexity|verify_failed|explicit_tool`), `context_ref`. The deep tier subscribes; its answer returns as a late `CortexResponse`/barge-in on existing topics.
+
+**The `escalate` tool** (the explicit, programmable punt — added to the front door's native-tool schemas alongside the real device/query tools; durable copy so it survives the scratch prototype):
+```json
+{"type":"function","function":{"name":"escalate",
+ "description":"Punt this turn to the slower, more capable deliberator. Call ONLY when the turn genuinely exceeds a quick answer: multi-step reasoning, real ambiguity, a hard/emotional question, or low confidence. Do NOT escalate routine control or simple lookups.",
+ "parameters":{"type":"object","properties":{"reason":{"type":"string","enum":["complexity","ambiguity","hard_or_emotional","low_confidence"]}},"required":["reason"]}}}
+```
 
 **Punt inputs (hybrid — proactive on cheap-strong signals, reactive as backstop):**
 | Signal | Kind | Source (grounded) | Notes |
@@ -65,6 +125,36 @@ Deep MoE fit on a clean 16 GB card:
 
 ## 5. Migration path (incremental, reversible — never break live)
 Each step ships and rolls back independently. Current baseline = 2-cortex (logical+creative) live.
+Built as NEW code ALONGSIDE the live fabric ([[PATTERNS]] production/failsafe coexistence); nothing
+deployed or cut over until validated.
+
+### 5.0 Vertical slice buildable TONIGHT (new code, coexisting, zero live impact)
+Three artifacts, none wired to the live bus, none deployed — the spine the UI can immediately build
+against and the cognition can grow into:
+1. **Pin the Turn Contract (§1.5)** — it already exists; the tonight work is a tiny **adapter +
+   round-trip harness** that maps `POST /turn {text, session_id}` ↔ a web-node `FeatureStream` and
+   subscribes `SpeechUtterance`/`FusionDecision` by `turn_id`. Run it on a **separate DDS domain**
+   (or against a mock bus) so it never fires a live turn. This is the exact contract the UI worker's
+   gateway builds against → hand them this. _(Prototype stub: `scratchpad/turn_contract_proto.py`.)_
+2. **`PuntRequest` contract + `iris/punt/requested` topic** — additive (mirrors `FastPathFired`);
+   defines the punt wire shape (`turn_id`, `reason` enum, `context_ref`). No live consumer →
+   completely inert. Frozen `CortexResponse`/`FusionDecision` untouched. _(Prototype: same file.)_
+3. **Routing-as-tool-call front-door prototype** — a standalone module: takes a turn (text + tools
+   + injected entities/ambient), calls a 14b-class model with native tools **including an `escalate`
+   tool**, returns `{say, actions, punt?}`. Tested in isolation (mock CuratedContext / mock or local
+   ollama inference — inference only, no model-state change). NOT subscribed to the live bus.
+   _(Prototype skeleton: `scratchpad/front_door_proto.py`.)_
+
+Tonight's exit criteria: the turn contract is pinned and demonstrated end-to-end on a scratch/mock
+loop; the UI worker can build its gateway against it; the front-door `decide()` + `escalate` tool
+interface exists as testable code. Nothing touches production.
+
+_Scratch prototypes (`turn_contract_proto.py`, `front_door_proto.py`) are session-ephemeral
+head-start sketches — the durable shapes live in this doc (§1.5 turn contract, §3 escalate tool +
+PuntRequest). At build start, lift them into a NEW component `iris-fusion-fabric/front-door/`
+(coexisting with the live cortices; nothing deployed) — production/failsafe coexistence per [[PATTERNS]]._
+
+### 5.1 Staged rollout (after tonight)
 
 1. **Reactive-punt backstop, deep tier OFF.** Add the `iris/punt/requested` topic + `PuntRequest` contract (additive, frozen contracts untouched). Wire the *reactive* signal only (supervise/verify failure publishes a punt) but with **no subscriber** — pure shadow logging of "this turn would have punted." **Rollback:** ignore the topic. _Value: measures punt frequency before building anything._
 2. **Retire Gemma → single-voice front door.** Make `cortex-logical` the voice owner (stream its pass-1 prose); stop invoking `cortex-creative` on live turns (leave the service deployable). Frees GPU1. **Rollback:** re-enable creative invocation (one flag). _This is the ISSUE-005 root fix (voice now sees tool results) and the ADR-001 diagnosis-surface win — shippable on its own even if nothing else lands._
