@@ -33,6 +33,20 @@ reads/writes (exposed to the fabric as tools — `get_tasks`, `create_task`, `ge
 and the chat box reasons over the same `memory-substrate`. One Iris, two surfaces — never a
 second, diverging assistant.
 
+**The UI also exposes voice conversations, resumable across surfaces (Matt, 2026-08-24).** The
+web surface shows your voice-conversation history and lets you **pick one up in text** — continue
+a conversation you started by voice. This is "same Iris" at full strength: continuity of
+*conversation*, not just of the task list. It has two infrastructure consequences:
+- A **durable conversation log** (per-turn transcript + Iris's reply + session id + timestamps)
+  the UI can render. Partially derivable from the episode-buffer / turn-tracing today; likely
+  needs a first-class conversation store.
+- The **text→fabric bridge must be session-aware** — it attaches to an existing session/episode
+  and the fabric reconstructs that conversation's context so the text continuation is genuinely
+  the same thread (not a cold start). NB the working-memory field is RAM/per-process, so
+  cross-surface resume means rebuilding session context from the recent turns / memory, not from
+  live field state. (The old "session-keeper" idea, superseded by the working-memory field, is
+  relevant again here.)
+
 ## Key architectural pieces / open questions (resolve in ISSUE-008 or a design doc)
 1. **Tasks/projects store** — extend the Events sqlite in `iris-volition`, or a new `iris-tasks`
    service? _Lean: co-locate with Events, sqlite to start (matches that choice); revisit if it

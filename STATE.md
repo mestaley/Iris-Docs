@@ -22,6 +22,18 @@ candidates: Path-2 actuation, intentions scheduler, right-to-forget, contention-
 cognitive-event-stream). Deferred: DDS topic-table reference appendix, PROMPTS.md re-derived from
 live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard prompt rule.
 
+## Roadmap sequencing (decided 2026-08-24)
+1. **Web surface FIRST** (ADR-002 / ISSUE-008) — tasks + reminders + projects, hybrid (CRUD +
+   cortex chat), **and voice-conversation history that's resumable in text**. Builds the
+   session-aware text→fabric bridge that everything after it needs.
+2. **Local cognition rearchitecture** (ADR-003) — fold thalamus into a capable tool-calling
+   front-door model (routing-as-tool-call), MoE slow path, retire Gemma/creative. Serial spine,
+   most-capable-efficient build with the VRAM at hand.
+3. **Rented GPU experiments** — test cognitive pluralism / contention on rented (diverse, large)
+   hardware; prove-before-you-buy-local. Production stays 100% local (thesis).
+Plus the ADR-001 cleanup still in flight (re-enroll voiceprint, eval-backed multi-intent redo,
+ISSUE-004/006 pruning + honesty). Deferred doc merges queued.
+
 ## Hosts
 | Host | Role | Mgmt |
 |---|---|---|

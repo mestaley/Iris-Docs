@@ -1,0 +1,66 @@
+# ADR-003: Local serial-spine cognition; contention deferred to a rented lab
+- Status: accepted (direction); implementation **sequenced AFTER the web surface** (ADR-002 / ISSUE-008)
+- Date: 2026-08-24
+
+## Context
+The two-cortex design — logical `qwen2.5:14b` + creative `gemma3:12b` — does not deliver the
+thesis's cognitive pluralism. "Creative" is a **voice-only rendering role**: no tools, no
+world-state reasoning (`CLAUDE.md`: "creative doesn't propose tools"). A rendering slot is
+structurally incapable of contributing a second *cognitive* perspective, whatever model sits in
+it — so the pluralism was never actually built (one reasoner + one stylist, labeled a weave). And
+Gemma can't fill the reasoning role either: a 12B next to the 14B is too thin a perspective to
+earn the weave, and it's the source of the "articulate lie" (ISSUE-005 — it speaks before it can
+see tool results). Multi-turn design discussion (2026-08-24) reframed the whole cognition stack.
+
+Hardware: core-ai = 2× RTX 5080 **16 GB** each (GPU0 logical+embed, GPU1 gemma+phi3.5); world-ai
+holds the `qwen2.5:7b` fast-path.
+
+## Decision
+**Build the most capable, efficient LOCAL cognition with the VRAM at hand — a serial spine, not
+parallel pluralism.**
+1. **Fold the thalamus into a capable tool-calling front-door model.** Routing becomes a
+   *tool-call* ("handle it now vs. escalate"), not a phi3.5 *classification* — which fixes the
+   ISSUE-002 routing weakness and removes the fastpath↔logical double-fire (the front door is the
+   reflex; it escalates deliberately). The front door owns routing + tool-calling + **voice** +
+   every turn it can handle itself.
+2. **A MoE slow path** as the escalation/deep tier for genuinely hard turns (on the freed GPU1).
+3. **Retire the creative-as-renderer cortex** (Gemma out; frees ~10 GB). Voice moves to the
+   front-door/logical model — utilitarian voice is fine; the flourish was never valued.
+
+**The thesis fixes the goal (situational intelligence), not the topology.** It is explicit —
+"cortex configuration is not load-bearing," "substrate implementation is not predetermined."
+Parallel pluralism was one *mechanism*; serialism is a legal realization of the same goal.
+
+**Contention / pluralism = deferred to a RENTED experimentation lab, not local hardware.**
+It is the unproven capability — never worked as built, and possibly not what Matt wants. Don't
+commit scarce local VRAM to it. Two reasons to rent rather than cram it locally:
+- Local 16 GB could never test pluralism *fairly* (two crammed small models is a strawman). If
+  contention pays off at all, it's with capable, *diverse* models — only rentable at scale.
+- **Prove-before-you-buy:** the rented experiment is what decides whether contention ever earns
+  local silicon. Commit a GPU to it only if the experiment proves its value.
+
+**Local-first boundary (thesis, load-bearing).** Production Iris stays **100% local**
+(front-door + MoE). The rented GPU is a **lab, not the product** — renting to decide what to build
+≠ renting to run Iris. Guardrail: keep real household data off rented iron; experiment with
+sanitized versions of the validation-target scenarios. If contention ever proves indispensable,
+the thesis-consistent endgame is buying the local GPU for it.
+
+## Open tunable
+Front-door latency: keep the world-ai `7b` as a sub-second reflex *in front of* the 14B-class
+front door, or fold everything into the one model and accept ~1s on trivial turns. Cheap to try both.
+
+## Consequences
+- Simpler, more legible cognition: a serial ladder replaces the parallel v0/v1/v2 fusion race →
+  smaller diagnosis surface (the ADR-001 win, continued).
+- Grounds the voice (the voice model now sees tool results before speaking) → attacks ISSUE-005 at
+  the root, not just via the prompt guardrail.
+- Frees ~10 GB (Gemma) — which is also what makes a bigger *reasoning* model / the MoE fit.
+- The contention question stays **open but isolated** (rented), decided by evidence, not conviction.
+- Supersedes the two-cortex arrangement. Relates to ISSUE-002 (routing), ISSUE-005 (voice grounding).
+
+## Not deciding yet / sequenced
+- Exact models (front-door: a 14B-class tool-caller; slow: a MoE, e.g. Qwen3-30B-A3B-shaped) —
+  size precisely against the freed 16 GB when implementation starts.
+- **Order: the web surface (ADR-002) comes FIRST.** Its text→fabric bridge is reusable
+  infrastructure this rearchitecture and the rented experiments both need. Cognition rearchitecture
+  begins after the web UI ships.

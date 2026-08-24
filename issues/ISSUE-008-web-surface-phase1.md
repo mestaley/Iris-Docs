@@ -22,9 +22,18 @@ research-assistant shape (hybrid: CRUD + a "same Iris" chat box). No larger mode
 4. **Chat box (minimal, growing)** — a text chat that routes to the fabric. Start minimal (even
    a stub or thin path), but wire it toward the ADR-002 text→fabric bridge option (a) so it
    becomes "the same Iris," not a separate assistant. Don't let it diverge.
-5. **Frontend** — simple, self-hosted: task list grouped by project, add/edit/complete,
-   reminders view, chat panel.
-6. **Hosting + auth** — LAN, single-user, light auth (not zero). Pick a host.
+5. **Conversations view + resume (voice ↔ web continuity)** — expose voice-conversation history in
+   the UI and let Matt **pick up a voice conversation in text**. Two parts:
+   - *Read (earlier):* a durable **conversation log** (per-turn transcript + reply + session id +
+     timestamp) rendered as a browsable history. Assess what episode-buffer / turn-tracing already
+     capture vs. what a first-class conversation store must add.
+   - *Resume (with the chat box):* the text→fabric bridge attaches to an existing session/episode
+     and the fabric **reconstructs that conversation's context** (from recent turns / memory, since
+     the working-memory field is RAM-only) so the continuation is the same thread. This is the
+     hardest continuity piece; it can trail the read-only history view.
+6. **Frontend** — simple, self-hosted: task list grouped by project, add/edit/complete,
+   reminders view, conversations/history view, chat panel.
+7. **Hosting + auth** — LAN, single-user, light auth (not zero). Pick a host.
 
 ## Suggested build order
 1. Decide the store (extend Events vs `iris-tasks`) + the task/project schema.
