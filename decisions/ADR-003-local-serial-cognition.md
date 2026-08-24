@@ -82,6 +82,17 @@ commit scarce local VRAM to it. Two reasons to rent rather than cram it locally:
 sanitized versions of the validation-target scenarios. If contention ever proves indispensable,
 the thesis-consistent endgame is buying the local GPU for it.
 
+## Extensible by expert (a property of the decision, not a someday-maybe)
+The explicit router makes the pool extensible along a **second axis — specialty, not just tier.**
+Punt on *depth* (escalate hard turns) AND route on *kind* (creative → a creative expert; later
+code/research/etc.). Adding a specialist is **additive and non-disruptive** — a route + an expert,
+no rearchitecture (impossible in a monolith or a weight-baked MoE). Concretely: **Gemma (or the
+like) may re-enter later as a creative specialist** for creative-centric turns — it was never a bad
+model, only mis-cast as always-on general voice. Discipline (ADR-001, again): a specialist earns
+its slot only if **measurably better at its specialty than the general tier** (eval-tested) — it
+returns on evidence, not nostalgia; a capable deep tier may write well enough that no creative
+expert is warranted.
+
 ## Open tunable
 Front-door latency: keep the world-ai `7b` as a sub-second reflex *in front of* the 14B-class
 front door, or fold everything into the one model and accept ~1s on trivial turns. Cheap to try both.
