@@ -1,9 +1,18 @@
 # Web Surface — Phase 1 Design (tasks / reminders / conversations)
 
 _Design doc for [ISSUE-008](../issues/ISSUE-008-web-surface-phase1.md), per
-[ADR-002](../decisions/ADR-002-web-surface.md). Resolves the open decisions with concrete
-schema, API, and the session-aware text→fabric bridge. Grounded in the live code (Events
-subsystem, tool-registry, the DDS turn path). **Design only — nothing here is built yet.**_
+[ADR-002](../decisions/ADR-002-web-surface.md) + [ADR-003](../decisions/ADR-003-local-serial-cognition.md).
+Resolves the open decisions with concrete schema, API, and the **Turn-Entry Contract** (§6).
+Grounded in the live code (Events subsystem, tool-registry, the DDS turn path)._
+
+> **Sequencing (updated 2026-08-24): PARALLEL build with the cognition rearch, NOT web-first.**
+> The CRUD half runs fine on the current brain; the conversational/research half is only worth
+> building on the NEW cognition — so **UI + cognition build together and land on the new brain.**
+> The **Turn-Entry Contract (§6)** is the shared seam that makes this work: the UI builds against it
+> now (validated end-to-end via Adapter A on the current fabric), and the new front-door lands
+> behind the *same* contract (Adapter B) — cutover is a config flip. **Implementation-ready:** the
+> vertical slice in §7.1 is new code buildable **tonight, alongside the live system** (no
+> deploy/cutover tonight — that needs Matt's sudo).
 
 ## 0. Summary of decisions
 | Question | Decision |
@@ -11,7 +20,7 @@ subsystem, tool-registry, the DDS turn path). **Design only — nothing here is 
 | Store | **Extend the existing volition events service** (core-ai, `:8015`, WAL sqlite `state/events.db`) with new `tasks`/`projects`/`conversations` tables — NOT a new `iris-tasks` service. |
 | Data model | Reminders stay `pending_events` (kind=reminder); tasks + projects + conversation-log get their own tables. |
 | Shared state | Voice and web both go through the volition intake (`:8015`) and new fabric tools — one owner, one store. |
-| Bridge | A **new web-gateway service** (DDS participant on domain 42) that publishes a synthetic `FeatureStream` ("web node") and reads back `FusionDecision.say` / `SpeechUtterance` as **text**. No TTS, no reviving `fabric_brain`. |
+| **Turn-Entry Contract (§6)** | A **brain-agnostic** `POST /chat` + internal `BrainAdapter` interface. Identical whether it routes to the current fabric (**Adapter A**: synthetic `FeatureStream` "web node" → `FusionDecision.say`, no TTS) or the new front-door (**Adapter B**). The cognition swaps in *behind* the contract — the seam of the parallel build. |
 | Chat/CRUD split | Gateway serves the frontend + the chat bridge; CRUD is proxied to `:8015`. Data logic stays in the owner (volition), gateway is thin presentation+transport (the world-ai-broker pattern, [[PATTERNS]]). |
 | Host | Web-gateway on **core-ai** (must be on the DDS bus for the bridge; `:8015` is local). |
 | Auth | Single-user password → httpOnly session cookie, LAN-only. Not zero (it actuates the house + reads family data). |
@@ -127,54 +136,119 @@ state. P1 resume = same `session_id` + recent `conversation_turns` replayed into
 conversation log). The field re-warms as the text conversation continues. Full session-keeper
 (durable cross-surface field state) is post-P1 — the old "session-keeper" idea, [[BACKLOG]].
 
-## 6. The text→fabric bridge (the keystone)
-The fabric already has a clean DDS **entry** (`FeatureStream`) and **exit** (`FusionDecision.say` /
-`SpeechUtterance`). The gateway just speaks DDS — it is a **bus peer**, like the eval harness
-([[HISTORICAL-DECISIONS]] HD-6). It does NOT touch `fabric_brain`/`/decide_v2`/brain-`:8000`
-(retired, [[ARCHITECTURE]]).
+## 6. The Turn-Entry Contract — the brain-agnostic shared interface  ⭐ CRITICAL
+This is THE seam of the parallel build (UI + cognition together). The web gateway and frontend speak
+ONLY this contract; the cognition — **current fabric today, the new front-door next** — swaps in
+*behind* it. Implementation conforms to the interface (architecture-is-sovereign,
+[[HISTORICAL-DECISIONS]] HD-10). **The contract is identical for both brains; only the adapter
+differs.** (This section is reconciled against the cognition worker's turn-entry spec — keep the
+shapes below authoritative for the web side.)
 
-**Text in — synthesize a "web node" FeatureStream** and publish on `iris/perception/feature_stream`:
+### 6.1 Client-facing (web gateway HTTP)
 ```
-FeatureStream(
-  turn_id   = new_id("turn"),
-  asr       = AsrResult(text=<typed message>, confidence=1.0, asr_model="web"),
-  wake      = WakeContext(...synthetic web wake...),
-  affect    = AffectInfo(neutral)         # or text-derived later
-  speaker   = SpeakerVerification(verified_id="matt", confidence=1.0),   # web session is authenticated
-  spatial   = SpatialContext(origin_node="web", origin_room="web", occupied_rooms=[...]),
-  trace     = {"session_id": <conversation session>, "surface": "web"},
-)
+POST /chat
+  req:  { "session_id": str|null, "text": str, "surface": "web", "stream": bool }
+        # session_id null → gateway allocates a new one (returned in the response)
+        # stream=true → SSE/WebSocket: delta frames then one final; stream=false → one JSON reply
+  resp (stream):  event: delta  data: {"turn_id","text_delta"}                      # 0..N
+                  event: final  data: {"turn_id","session_id","say","actions":[…]}  # exactly 1
+  resp (block):   { "turn_id","session_id","say","actions":[…] }
+GET  /chat/sessions            → conversation list (proxies /conversations, §5)
+GET  /chat/sessions/{id}       → the turns (history + resume source)
 ```
-Everything downstream (thalamus → curator → cortices → fusion → tool-registry) runs **unchanged** —
-a web turn is just a turn whose "node" is `web`. Actuations work. Shared memory works.
+`say` = the canonical final reply (may supersede optimistic deltas via a barge-in correction — same
+reconciliation as voice). `actions` = what Iris did, for UI echo ("✓ turned on the lights").
 
-**Text out — subscribe by `turn_id`:**
-- `SPEECH_UTTERANCE` → stream reply deltas to the browser (SSE/WebSocket) for live typing.
-- `FusionDecision.say` → the canonical final text (source of truth; reconcile if a barge-in
-  correction supersedes an optimistic delta — same as voice).
-No Kokoro, no gRPC speech sink — the gateway is the text sink.
+### 6.2 Internal turn-submission interface (the swap point)
+```python
+class ResumeContext(TypedDict):
+    session_id: str
+    recent_turns: list[dict]        # last N conversation_turns (user_text/iris_say), oldest→newest
 
-**Gateway shape:** a small FastAPI + cyclonedds service (`DomainParticipant(domain_id=42)`, host
-networking per [[PATTERNS]]). Routes: `POST /chat {session_id?, text}` (publishes the turn, streams
-back the reply), plus it serves the frontend and reverse-proxies the `:8015` CRUD. One new unit on
-core-ai. A prototype interface sketch belongs in the build (§7 step 4), kept minimal first.
+class TurnDelta(TypedDict):   turn_id: str; text_delta: str
+class TurnResult(TypedDict):  turn_id: str; session_id: str; say: str; actions: list; done: bool
 
-**Node allowlists:** the streaming path gates nodes by allowlist in three services (conditioning /
-fusion / speech-output, [[ARCHITECTURE]]). The `web` node bypasses the *speech* allowlists (no TTS)
-but fusion must accept a `web`-origin turn — verify/extend `FUSION_EXECUTIVE_STREAMING_NODES`-style
-gating so a `web` turn is voiced-as-text, not dropped. **This is the one integration risk to spike first.**
+class BrainAdapter(Protocol):
+    async def submit_turn(
+        self, text: str, session_id: str, resume: ResumeContext | None,
+    ) -> AsyncIterator[TurnDelta | TurnResult]:
+        # yields 0..N TurnDelta then EXACTLY ONE TurnResult(done=True)
+        ...
+```
+The gateway holds ONE `BrainAdapter`, chosen by config. Everything else (HTTP, streaming, sessions,
+CRUD, frontend) is identical across brains — moving from Adapter A→B is a **config flip, zero UI change**.
 
-## 7. Build order (value lands before the UI ships)
-1. **`TaskStore` + tables + `:8015` task/project routes.** Pure CRUD over the existing service.
-2. **Fabric tools** (`get_tasks`/`create_task`/`update_task`/`get_reminders`). ⇒ *voice can manage
-   the task list with no web page yet.* Ship + soak this alone.
-3. **Conversation-log subscriber + `/conversations` routes.** History is now queryable.
-4. **Web gateway — the bridge.** Spike the `web`-node FeatureStream round-trip FIRST (publish a
-   canned text turn, read back `say`) to de-risk the fusion `web`-origin gating (§6). Then `/chat`
-   streaming.
-5. **Frontend** — task list by project, reminders view, conversations/history view, chat panel.
-6. **Resume** — wire chat `session_id` to a selected conversation; replay recent turns as context.
-7. **Auth + hosting hardening.**
+### 6.3 Adapter A — current fabric (DDS peer; buildable today)
+A `DomainParticipant(domain_id=42)` bus peer (host networking, [[PATTERNS]]) — like the eval harness
+(HD-6). Does NOT touch retired `fabric_brain`/`/decide_v2`/brain-`:8000`.
+- **submit_turn →** publish a synthetic **"web node"** `FeatureStream` on
+  `iris/perception/feature_stream`: `asr=AsrResult(text, confidence=1.0, asr_model="web")`,
+  `speaker=SpeakerVerification(verified_id="matt", confidence=1.0)` (web session authenticated),
+  `spatial=SpatialContext(origin_node="web", origin_room="web")`, `affect=neutral`,
+  `trace={"session_id": session_id, "surface":"web"}`. If `resume`, seed `recent_turns` (§6.5).
+- **yield ←** subscribe by `turn_id`: `SPEECH_UTTERANCE` → `TurnDelta`s; `FUSION_DECISION.say` →
+  the final `TurnResult`. No Kokoro/gRPC — the adapter is the text sink.
+- Downstream (thalamus→curator→cortices→fusion→tool-registry) runs UNCHANGED; a web turn is a turn
+  whose node is `web`. Actuations + shared memory work.
+
+### 6.4 Adapter B — new front-door (conforms to §6.2; built by the cognition rearch)
+The new cognition's front-door exposes a turn entry (the cognition worker specs the exact internal
+shape — reconcile there). It takes `text` + `session_id` + `resume` and yields the SAME
+`TurnDelta`/`TurnResult`. Because §6.1/§6.2 are identical, the web surface needs **zero changes** to
+move to Adapter B. This is how UI + cognition build in parallel and **land together on the new
+brain**: the UI builds against the contract now (Adapter A validates the whole path end-to-end), the
+new front-door lands behind the same contract, cutover = flip the adapter.
+
+### 6.5 Session-attach / resume
+`session_id` is the conversation identity, **shared across surfaces** — voice turns already carry it
+in `trace.session_id`; web turns carry the same. A voice conversation from `/conversations` resumes
+on web by submitting with its `session_id`. Resume = same `session_id` + `ResumeContext` (recent
+`conversation_turns`). Honest caveat (both adapters): the working-memory field is RAM-only/per-process,
+so a resumed turn doesn't inherit live field state — the adapter seeds from `recent_turns` + memory
+recall (keyed by session_id, which the fabric already does); the field re-warms as the chat continues.
+Durable cross-surface field state = post-P1 (session-keeper, [[BACKLOG]]).
+
+### 6.6 The one integration risk — spike FIRST
+The streaming path gates nodes by allowlist across conditioning/fusion/speech-output
+([[ARCHITECTURE]]). A `web` node bypasses the *speech* allowlists (no TTS) but **fusion must accept
+and voice-as-text a `web`-origin turn**, not drop it. Spike this before building the gateway out:
+publish one canned `web` FeatureStream, confirm a `FusionDecision.say` returns. **Caution:**
+publishing to the LIVE bus triggers a REAL turn (a command would actuate) — spike with a
+non-actuating query ("what's the weather") and a dedicated test session; the bus is shared even
+though there's no cutover tonight.
+
+## 7. Build order
+
+### 7.1 Vertical slice — buildable TONIGHT (new code, alongside live, NO deploy)
+All new modules/files; nothing wired into a running service, so no restart/sudo needed tonight
+(wiring + deploy is Matt's, later). Each is unit-testable in isolation against a scratch sqlite.
+1. **`TaskStore` + schema + Pydantic `Task`/`Project` models** — new module beside `EventQueue`
+   (same `sqlite3`/WAL pattern). Unit tests against a temp db. *(no deploy)*
+2. **Task/project router** — a new `APIRouter` (the `/tasks` + `/projects` routes, §3) that will
+   mount into `make_intake_app` later; test standalone by spinning the app on a scratch db. *(no deploy)*
+3. **Fabric tools** — `get_tasks`/`create_task`/`update_task`/`get_reminders`: new methods on the
+   events backend + entries in `definitions.py` + `dispatch.py` + `PER_TOOL_TIMEOUT_S`. Unit-test
+   like the existing tool-registry tests. *(no deploy — dispatch changes go live only on restart)*
+4. **Turn-Entry Contract skeleton (§6)** — the new web-gateway service: FastAPI `POST /chat`, the
+   `BrainAdapter` Protocol, and **`CurrentFabricAdapter`** (DDS peer, domain 42). Code-complete;
+   `stream=false` blocking mode first (simplest), SSE later. *(new service, not started as a unit)*
+5. **The `web`-origin spike (§6.6)** — the ONE live-touch checkpoint: from the new gateway, submit a
+   **non-actuating** turn ("what's the weather") on a dedicated test session; confirm a
+   `FusionDecision.say` returns and that fusion doesn't drop the `web` node. If it drops, that's the
+   first real fix (fusion `web`-origin acceptance). **Careful — shared live bus.**
+
+This slice proves the whole path (store → tools → contract → real brain round-trip) end-to-end on
+the CURRENT fabric, which is exactly what de-risks landing Adapter B on the new brain.
+
+### 7.2 Full order (parallel with the cognition rearch; lands on the new brain)
+6. **Conversation-log subscriber + `/conversations` routes** (§5) — history queryable.
+7. **Frontend** — tasks by project, reminders, conversations/history, chat panel (SSE streaming).
+8. **Resume** (§6.5) — wire chat `session_id` to a selected conversation; seed `recent_turns`.
+9. **Adapter B** — swap `CurrentFabricAdapter` → the new front-door behind the SAME contract
+   (config flip). UI + cognition converge here; this is the "land on the new brain" moment.
+10. **Auth + hosting hardening.**
+Deploy of anything in 1–10 (wiring into volition/tool-registry, starting the gateway unit) is a
+Matt-sudo step; tonight is authoring + isolated tests + the one careful spike.
 
 ## 8. Open decisions for Matt
 - **Host:** web-gateway on core-ai (needs the DDS bus). OK, or stand up a dedicated ui host on the bus?
