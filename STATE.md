@@ -22,6 +22,19 @@ candidates: Path-2 actuation, intentions scheduler, right-to-forget, contention-
 cognitive-event-stream). Deferred: DDS topic-table reference appendix, PROMPTS.md re-derived from
 live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard prompt rule.
 
+## Versioning — this is Iris V2 (declared 2026-08-24)
+- **V1 (live now):** the async streaming DDS fabric with **two-cortex cognitive pluralism** —
+  logical + creative running in parallel, fusion-as-weaver. Voice-only surface. (Its own
+  predecessor was the synchronous `fabric_brain` era.)
+- **V2 (in parallel build):** a fundamental architecture shift, not an increment —
+  (a) **serial-spine punt/escalation cognition** (a system-level MoE with an explicit programmable
+  router; front-door + deep-MoE, creative retired — ADR-003), and (b) **multi-surface** (the web
+  surface: tasks/reminders/projects + resumable voice-conversation continuity, shared state across
+  voice + web — ADR-002). The two-cortex parallel model → escalation model is the cognition break;
+  voice-only → multi-surface is the interface break. Together = V2.
+- Bridge de-risked 2026-08-24: a synthetic `web`-origin turn was accepted+voiced-as-text by live
+  fusion ("It's 69 degrees and partly cloudy.", origin_node=web, 3.4s) — the `BrainAdapter` seam works.
+
 ## Roadmap sequencing (decided 2026-08-24)
 **Web surface (ADR-002/ISSUE-008) and cognition rearch (ADR-003) build in PARALLEL** — the UI's
 CRUD half is fine on the current brain, but its conversational/research half is worthless on the

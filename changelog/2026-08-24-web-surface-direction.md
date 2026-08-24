@@ -20,8 +20,27 @@ and a roadmap sequencing.
 - `decisions/README.md`, `issues/README.md` — **changed** — indexed ADR-002/003 + ISSUE-008.
 - `changelog/2026-08-24-web-surface-direction.md` — **added** — this entry.
 
+## Evening — V2 declared, implementation kicked off (parallel)
+- **Iris V2 declared** (STATE.md "Versioning"): V1 = two-cortex parallel-pluralism voice fabric;
+  V2 = serial-spine punt/escalation cognition (ADR-003) + multi-surface web (ADR-002). The
+  cognition break + the interface break together = V2.
+- **Bridge spike PASSED (live):** a synthetic `web`-origin FeatureStream was accepted and
+  voiced-as-text by live fusion (`say="It's 69 degrees and partly cloudy."`, origin_node=web, 3.4s)
+  — the one flagged integration risk is resolved; the BrainAdapter seam is proven. Ran via the eval
+  harness on core-ai (scratch `spike_web.py`); non-actuating query, no audio to any device.
+- **Two implementation builders launched** (worktree-isolated on iris-fusion-fabric, feature
+  branches, NO deploy): UI tonight-slice (TaskStore + tasks/projects routes + fabric tools +
+  BrainAdapter/CurrentFabricAdapter) and cognition tonight-slice (PuntRequest contract +
+  `iris/punt/requested` topic + reactive shadow-punt logging + isolated front-door decide()
+  prototype). Results pending.
+- **New guidance captured:** Matt prefers Iris bias toward ACTION/assertiveness over conservative
+  ask-first — "I can touch a light switch," a false-positive is cheap. Memory `iris-bias-toward-action`
+  + ISSUE-007 updated (Path-2 leans assertive). Loosen Volition/actuation conservatism generally.
+
 ## Deploy / live state
-None — planning/direction only. Nothing deployed or changed in the running system.
+Nothing deployed. The bridge spike touched the live bus read-only-ish (injected one non-actuating
+query turn; no state changed). All builder work is new code on feature branches / worktrees,
+awaiting Matt's review + deploy.
 
 ## Follow-ups / owed
 - When P1 kicks off: a short design doc (EVENTS.md-style) resolving the open decisions in ADR-002/ISSUE-008 — tasks store (extend Events vs new `iris-tasks`), the text→fabric bridge shape, host + auth + frontend stack.

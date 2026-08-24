@@ -1,5 +1,6 @@
 # ISSUE-008: Web surface — Phase 1 (tasks & reminders, hybrid)
 - Buildable design (code-grounded, resolves the open decisions): [`design/WEB-SURFACE.md`](../design/WEB-SURFACE.md)
+- **Bridge integration risk RESOLVED 2026-08-24:** the one flagged risk (does live fusion voice a `web`-origin turn or drop it on the node allowlist?) was spiked and PASSED — a synthetic `web` FeatureStream was accepted and voiced-as-text (`say="It's 69 degrees and partly cloudy."`, origin_node=web, 3.4s). No allowlist change needed. The `BrainAdapter`/text→fabric bridge is proven end-to-end against the live brain.
 - Status: open (scoping; per [ADR-002](../decisions/ADR-002-web-surface.md))
 - Severity: n/a (new initiative — the highest-value near-term direction)
 - Area: new surface / web

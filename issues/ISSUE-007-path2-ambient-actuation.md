@@ -29,10 +29,13 @@ multi-intent / grounding / prune) deliberately does not cover it — it's net-ne
    entities in ambient BEFORE the cortex reasons (curator prefetch — lighting/occupancy already exist).
 3. **Reasoning → plan:** cortex-logical emits a multi-action `control_device` plan from the grounded
    state. `CortexResponse` already carries N actions (no contract change).
-4. **Ask-vs-act:** per the conservative Volition stance, an ambient inference should likely OFFER
-   ("It's dim in here — want me to bring up the lamps?") before acting, at least initially. Ties to
-   the Volition LightingArbiter (already live for dim+occupied+lights-off offers) — Path-2 may be
-   its natural generalization.
+4. **Ask-vs-act:** lean ASSERTIVE. Matt (2026-08-24): "I don't care if this is intrusive, I'm
+   capable of getting off my ass to touch a light switch" — a false-positive is cheap, silence is
+   the felt failure ([[iris-bias-toward-action]]). So Path-2 should OFFER readily and ACT on
+   reasonable-confidence ambient inferences, not default to silence. (Earlier "offer before acting,
+   conservatively" framing is downgraded per this guidance.) Ties to the Volition LightingArbiter
+   (already live for dim+occupied+lights-off offers) — Path-2 generalizes it, and the whole
+   conservatism should be loosened.
 5. **Validate with the eval harness** (HD-6): state-expression cases at production temperature.
 
 ## Relationship
