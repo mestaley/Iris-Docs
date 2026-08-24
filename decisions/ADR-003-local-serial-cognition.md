@@ -1,4 +1,5 @@
 # ADR-003: Local serial-spine cognition; contention deferred to a rented lab
+- Buildable design (incremental migration, code-grounded): [`design/COGNITION-REARCH.md`](../design/COGNITION-REARCH.md)
 - Status: accepted (direction); implementation **sequenced AFTER the web surface** (ADR-002 / ISSUE-008)
 - Date: 2026-08-24
 
