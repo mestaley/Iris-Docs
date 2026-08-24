@@ -1,4 +1,5 @@
 # ISSUE-008: Web surface — Phase 1 (tasks & reminders, hybrid)
+- Buildable design (code-grounded, resolves the open decisions): [`design/WEB-SURFACE.md`](../design/WEB-SURFACE.md)
 - Status: open (scoping; per [ADR-002](../decisions/ADR-002-web-surface.md))
 - Severity: n/a (new initiative — the highest-value near-term direction)
 - Area: new surface / web
