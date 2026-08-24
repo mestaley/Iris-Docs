@@ -13,4 +13,6 @@ future-you doesn't relitigate it.
 ```
 
 ## Index
-- ADR-001 — Continue vs. nuke half (proposed, pending Matt's call)
+- ADR-001 — Continue vs. nuke half (accepted; implemented 2026-08-23)
+- ADR-002 — Iris web surface: tasks/reminders → research assistant (accepted direction; P1 in ISSUE-008)
+- `HISTORICAL-DECISIONS.md` — still-in-force decisions ported from the legacy log

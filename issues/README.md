@@ -22,3 +22,4 @@ the file and record the fix + commit.
 - ISSUE-005 — Cortex speech not grounded in tool results → "articulate lie" family (high, live)
 - ISSUE-006 — Iris should say a backend ERRORED (503), not vaguely deflect (medium, open)
 - ISSUE-007 — Path-2 actuation: ambient/state-expression commands ("make it cozy") (medium, open)
+- ISSUE-008 — Web surface Phase 1: tasks & reminders, hybrid (new initiative, per ADR-002)
