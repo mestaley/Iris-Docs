@@ -28,11 +28,21 @@ and a roadmap sequencing.
   voiced-as-text by live fusion (`say="It's 69 degrees and partly cloudy."`, origin_node=web, 3.4s)
   — the one flagged integration risk is resolved; the BrainAdapter seam is proven. Ran via the eval
   harness on core-ai (scratch `spike_web.py`); non-actuating query, no audio to any device.
-- **Two implementation builders launched** (worktree-isolated on iris-fusion-fabric, feature
-  branches, NO deploy): UI tonight-slice (TaskStore + tasks/projects routes + fabric tools +
-  BrainAdapter/CurrentFabricAdapter) and cognition tonight-slice (PuntRequest contract +
-  `iris/punt/requested` topic + reactive shadow-punt logging + isolated front-door decide()
-  prototype). Results pending.
+- **Two implementation builders — BUILT + TESTED + COMMITTED** (worktree-isolated, feature
+  branches off `iris-fusion-fabric`, nothing deployed). NB: volition + tool-registry + the new
+  web-gateway are all **components of the iris-fusion-fabric monorepo** (volition is not a separate repo).
+  - **Cognition** `feat/punt-escalation` (`4fa64d6`, worktree `wt-punt`): `PuntRequest` contract +
+    `iris/punt/requested` topic (frozen contracts untouched) · reactive shadow-punt in fusion
+    (log-only default, `punt_publish=False`) · isolated action-biased front-door `decide()` prototype.
+    Tests: front-door 9/9, contract 3/3, bus 1/1, shadow-punt 3/3. = migration step 1 (measure punt freq).
+  - **Web** `feat/web-tasks-tools` (`33b48f3`, worktree `wt-web-tasks`): volition `TaskStore` +
+    tasks/projects/conversation_turns tables + `/tasks`/`/projects`/`/conversations` routes (additive
+    `task_store` param, default None = unchanged) · 4 fabric tools (get/create/update_task, get_reminders,
+    mirroring set_reminder) · new `web-gateway` component (BrainAdapter Protocol + CurrentFabricAdapter
+    using the proven spike pattern + `POST /chat` blocking/SSE). Tests: 27 new green, no regressions.
+  - **Heads-up:** the web builder overlaid its 8 changed files onto core-ai `/opt/iris-fusion-fabric`
+    to run tests (additive, inert until restart) — do a clean branch deploy; `git checkout .` there
+    first if you want the deployed tree pristine. (Cognition builder used a temp copy — deployed tree untouched.)
 - **New guidance captured:** Matt prefers Iris bias toward ACTION/assertiveness over conservative
   ask-first — "I can touch a light switch," a false-positive is cheap. Memory `iris-bias-toward-action`
   + ISSUE-007 updated (Path-2 leans assertive). Loosen Volition/actuation conservatism generally.
