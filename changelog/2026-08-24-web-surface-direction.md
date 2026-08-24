@@ -48,9 +48,12 @@ and a roadmap sequencing.
   + ISSUE-007 updated (Path-2 leans assertive). Loosen Volition/actuation conservatism generally.
 
 ## Deploy / live state
-Nothing deployed. The bridge spike touched the live bus read-only-ish (injected one non-actuating
-query turn; no state changed). All builder work is new code on feature branches / worktrees,
-awaiting Matt's review + deploy.
+- **Both tonight-slices STAGED onto core-ai + validated (2026-08-24), inert until Matt restarts:**
+  - **Tasks:** volition (TaskStore wired into `service.py` — branch commit `0ef5e6f`) + tool-registry source synced; validated — volition imports clean, all 4 task tools registered. Components are editable installs, so source overlay is picked up on restart. **Restart: `iris-volition` + `iris-tool-registry`.**
+  - **Punt:** contracts/bus/fusion-executive source synced; fusion-executive venv refreshed (`uv sync --reinstall-package` recopied contracts+bus with `PuntRequest`/`iris/punt/requested`). Validated via the deployed `.venv/bin/python` (systemd's exact launcher): imports OK, `punt_shadow_enabled=True`, `punt_publish=False`. **Restart: `iris-fusion-executive`** → `journalctl -u iris-fusion-executive | grep SHADOW-PUNT`.
+  - Nothing hit the live bus; running services unaffected until restart (only fusion-executive's venv was refreshed; other services keep their own contracts copies).
+- **Caveats / proper-deploy follow-ups:** contracts left at 0.22.0 with new content (version drift — bump on the clean branch deploy); `uv sync` pruned dev deps from fusion's venv (harmless at runtime; `uv sync --dev` to run tests there); the deployed tree now carries worktree-branch overlays — do a clean `git checkout` of `feat/punt-escalation` + `feat/web-tasks-tools` for the real deploy.
+- Bridge spike earlier touched the live bus read-only-ish (one non-actuating query turn; no state changed).
 
 ## Follow-ups / owed
 - When P1 kicks off: a short design doc (EVENTS.md-style) resolving the open decisions in ADR-002/ISSUE-008 — tasks store (extend Events vs new `iris-tasks`), the text→fabric bridge shape, host + auth + frontend stack.
