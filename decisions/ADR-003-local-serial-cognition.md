@@ -1,6 +1,6 @@
 # ADR-003: Local serial-spine cognition; contention deferred to a rented lab
 - Buildable design (incremental migration, code-grounded): [`design/COGNITION-REARCH.md`](../design/COGNITION-REARCH.md)
-- Status: accepted (direction); implementation **sequenced AFTER the web surface** (ADR-002 / ISSUE-008)
+- Status: accepted (direction); **PARALLEL build with the web surface** (ADR-002 / ISSUE-008), coordinated by the shared text→fabric-bridge contract
 - Date: 2026-08-24
 
 ## Context
@@ -123,6 +123,11 @@ The punt/escalation model maps directly onto what's already built — a strong a
 ## Not deciding yet / sequenced
 - Exact models (front-door: a 14B-class tool-caller; slow: a MoE, e.g. Qwen3-30B-A3B-shaped) —
   size precisely against the freed 16 GB when implementation starts.
-- **Order: the web surface (ADR-002) comes FIRST.** Its text→fabric bridge is reusable
-  infrastructure this rearchitecture and the rented experiments both need. Cognition rearchitecture
-  begins after the web UI ships.
+- **Order: PARALLEL with the web surface (ADR-002), not after it.** (Corrected 2026-08-24 —
+  Matt: the UI's CRUD half is fine on the current brain, but its conversational/research half is
+  worthless on top of the confabulating two-cortex stack, so they build together and land on the
+  new brain.) The two builds are coordinated by ONE shared interface: the **text-turn-in /
+  response-out / session-attach contract** (the bridge). The UI builds against it; this cognition
+  rearchitecture swaps in BEHIND it — architecture-is-sovereign (HD-10), commit to the interface,
+  both implementations conform. Build the new cognition as NEW code alongside the live 2-cortex
+  (production/failsafe coexistence) and cut over only when validated (needs Matt's sudo).

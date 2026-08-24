@@ -23,14 +23,17 @@ cognitive-event-stream). Deferred: DDS topic-table reference appendix, PROMPTS.m
 live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard prompt rule.
 
 ## Roadmap sequencing (decided 2026-08-24)
-1. **Web surface FIRST** (ADR-002 / ISSUE-008) — tasks + reminders + projects, hybrid (CRUD +
-   cortex chat), **and voice-conversation history that's resumable in text**. Builds the
-   session-aware text→fabric bridge that everything after it needs.
-2. **Local cognition rearchitecture** (ADR-003) — fold thalamus into a capable tool-calling
-   front-door model (routing-as-tool-call), MoE slow path, retire Gemma/creative. Serial spine,
-   most-capable-efficient build with the VRAM at hand.
-3. **Rented GPU experiments** — test cognitive pluralism / contention on rented (diverse, large)
-   hardware; prove-before-you-buy-local. Production stays 100% local (thesis).
+**Web surface (ADR-002/ISSUE-008) and cognition rearch (ADR-003) build in PARALLEL** — the UI's
+CRUD half is fine on the current brain, but its conversational/research half is worthless on the
+confabulating two-cortex stack, so they build together and land on the new brain. Coordinated by
+ONE shared interface: the **existing `FeatureStream` (in) → `FusionDecision.say` (out) DDS
+contract** (both design workers converged on this independently). The web-gateway publishes a
+synthetic "web node" FeatureStream and reads the reply as text; the new cognition swaps in behind
+the same contract (architecture-is-sovereign). Design docs: `design/WEB-SURFACE.md`,
+`design/COGNITION-REARCH.md`.
+- **Shared spike FIRST (de-risks both):** confirm fusion will voice-as-**text** a `web`-origin
+  turn rather than drop it (streaming-node allowlists gate voice nodes; `web` must be accepted).
+- Then rented GPU experiments (later): "is a bigger deep tier worth local silicon" — prove-before-buy.
 Plus the ADR-001 cleanup still in flight (re-enroll voiceprint, eval-backed multi-intent redo,
 ISSUE-004/006 pruning + honesty). Deferred doc merges queued.
 
