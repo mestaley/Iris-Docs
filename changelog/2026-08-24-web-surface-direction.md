@@ -114,3 +114,13 @@ problem AND pulled Davis's preschool date + Matt's work calendar out of the Cura
 escalation pipe — reflex → 14b front door → 30B-A3B deep MoE, woven by barge-in — works end-to-end.
 Tunables: bump the 400 cap for richer deliberation; the ~13s wait is what the punt-bridge (generated
 holding line) covers. Still gated behind manual punts (proactive punt signals = step 5).
+
+## 2026-08-25 — Proactive punts (ADR-003 step 5) built + staged
+The metacognition step: fusion now evaluates whether a turn should escalate to the deep tier, from
+cheap-strong signals — **affect** (NEGATIVE sentiment ≥0.65 conf, or prosodic arousal ≥0.55), **front-door
+uncertainty** (self_reported_uncertainty ≥0.5, or confidence <0.45), **complexity** (≥22-word question).
+Trivial commands never match. `feat/punt-escalation` `652b393`; +7 tests (9/9 with retire-creative).
+Flag-guarded `proactive_punt_enabled` (default off), SHADOW-first. Rollout: restart fusion (inert) →
+enable proactive (shadow: logs "PROACTIVE-PUNT would-escalate reason=X", no firing) to CALIBRATE the
+thresholds on real turns → then punt_publish=true to let the deep tier auto-fire. CAVEAT: the punt-bridge
+(spoken holding line) isn't built, so LIVE = a silent ~13s before the deep barge-in until it is.
