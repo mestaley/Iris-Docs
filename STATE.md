@@ -22,6 +22,15 @@ candidates: Path-2 actuation, intentions scheduler, right-to-forget, contention-
 cognitive-event-stream). Deferred: DDS topic-table reference appendix, PROMPTS.md re-derived from
 live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard prompt rule.
 
+## V2 progress (live)
+- **Voice-managed tasks LIVE** (add + read, grounded) — web-surface P1 first capability.
+- **Creative cortex RETIRED 2026-08-25** (migration step 2, `FUSION_EXECUTIVE_ENABLE_CREATIVE=false`
+  + cortex-creative stopped): logical owns the grounded voice → ISSUE-005 confabulation dead at the
+  root ("weather report so much better", Matt). GPU1 freed for the deep MoE tier (step 4, next).
+  Tradeoff: first-audio ~0.2s→~2.5-3s (no logical streaming yet — backlogged). Reversible via the flag.
+- **Shadow-punt measuring** (step 1). Surprise finding: no-streaming *feels faster* → perceived latency
+  is VAD endpointing, not cortex first-audio (ISSUE-009).
+
 ## Versioning — this is Iris V2 (declared 2026-08-24)
 - **V1 (live now):** the async streaming DDS fabric with **two-cortex cognitive pluralism** —
   logical + creative running in parallel, fusion-as-weaver. Voice-only surface. (Its own

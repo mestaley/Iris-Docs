@@ -14,6 +14,15 @@ Sources still in `/opt/repos/Architecture/`; the review triage is in that sessio
 2. **`PROMPTS.md`** — port the legacy `Architecture/PROMPTS.md` **rationale + prompt-change history + 7 regression test cases**, but **re-derive the prompt bodies from live `*/src/*/prompt.py`** (the old bodies are stale — creative is now two-pass with many sections the doc lacks; thalamus schema added prefetch_*/news_query). Add the standing rule: "change a prompt in code → update this file in the same commit." Note ISSUE-005 as the resolution of the doc's "actuation-honesty is a stopgap" debt.
 3. **`history/CORE-SUBSTRATE.md`** (or a `decisions/` roadmap ADR) — preserve legacy `Core Substrate.md` as CLEARLY-LABELED sync-era/roadmap history: keep the three-loop model + four-pass dream-mode spec (the consolidation roadmap ADR-001 protects); discard the build-order schedule and normative contract sketches; label the whole thing so no one mistakes its sync-era diagrams for the live architecture.
 
+## Cognition (V2 migration — ADR-003)
+- **Add SpeechUtterance streaming to cortex-logical** (backlogged 2026-08-25 per Matt). Now that
+  creative — the only streamer — is retired, logical owns the voice but doesn't stream, so first-audio
+  is ~2.5-3s. Streaming logical's prose would keep fast first-audio AND the grounding. NB: lower
+  priority than it sounds — [ISSUE-009] says VAD endpointing dominates perceived latency, not this.
+- **MoE deep tier on the freed GPU1** (migration step 4, Matt's next goal) — stand up a 30B-A3B-shaped
+  deep tier now that GPU1 is free; the shadow-punt telemetry (step 1) sizes how often to escalate.
+- Tune VAD endpointing (ISSUE-009) — likely the biggest perceived-latency win.
+
 ## Owed / housekeeping
 - Push owed commits from Matt's shell: `12561ec` (world-ai), `40a20f1` (fusion-fabric), `261e4db` (conditioning).
 - Basement lux replacement decision — standalone lux sensor, or basement stays radar-only? (affects LightingArbiter basement offers)
