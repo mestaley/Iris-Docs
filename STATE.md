@@ -28,6 +28,7 @@ live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard 
   + cortex-creative stopped): logical owns the grounded voice → ISSUE-005 confabulation dead at the
   root ("weather report so much better", Matt). GPU1 freed for the deep MoE tier (step 4, next).
   Tradeoff: first-audio ~0.2s→~2.5-3s (no logical streaming yet — backlogged). Reversible via the flag.
+- **Deep tier (qwen3-deep, 30B-A3B instruct) PROVEN LIVE 2026-08-25** — deliberates on grounded context, barges in over the front-door answer (~13s). GPU1. Still fires only on MANUAL punts (proactive punt signals = step 5). See changelog.
 - **Shadow-punt measuring** (step 1). Surprise finding: no-streaming *feels faster* → perceived latency
   is VAD endpointing, not cortex first-audio (ISSUE-009).
 

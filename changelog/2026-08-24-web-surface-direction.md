@@ -102,3 +102,15 @@ Matt: retire Gemma worked → stand up the MoE deep tier on freed GPU1.
   punt signals = migration step 5.
 - **Fold analysis** (ADR-003 open tunable): two SEPARATE folds — thalamus→14b (retires phi, win) vs
   7b-reflex→14b (frees world-ai GPU but slows "lights on" ~0.5→2.5s; gate = a named use for that GPU).
+
+## 2026-08-25 — DEEP TIER PROVEN END-TO-END (live spike) 🎯
+Model finalized: **instruct-2507** (not thinking — thinking was too slow/verbose, timed out >120s uncapped)
++ **ChatML template** (raw-GGUF import defaulted to `{{ .Prompt }}` → garbage prefix; re-created FROM the
+blob with an explicit Qwen3 template + `<|im_end|>` stop) + **num_predict cap** (`DEEP_MODE_MAX_TOKENS=400`,
+deep_client, commit 0d358e6). qwen3-deep on GPU1 (:11435): warm answers in ~0.4s, ~160 tok/s, 15.3/16GB.
+**Live spike (a genuinely hard turn):** front-door gave a generic answer; deep-mode deliberated ~13s and
+BARGED IN (`cause=correction, interrupt_prior=True`) with a deeper, GROUNDED answer that reframed the
+problem AND pulled Davis's preschool date + Matt's work calendar out of the CuratedContext. The whole
+escalation pipe — reflex → 14b front door → 30B-A3B deep MoE, woven by barge-in — works end-to-end.
+Tunables: bump the 400 cap for richer deliberation; the ~13s wait is what the punt-bridge (generated
+holding line) covers. Still gated behind manual punts (proactive punt signals = step 5).
