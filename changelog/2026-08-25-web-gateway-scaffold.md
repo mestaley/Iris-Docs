@@ -55,6 +55,22 @@ conversation-log subscriber went LIVE (separate changelog).
 - `STATE.md` — **changed.** V2 progress: conversation-log subscriber LIVE; web-gateway scaffolded.
 - `changelog/2026-08-25-web-gateway-scaffold.md` — **added** (this file).
 
+### iris-web-gateway — branch `main` — commit 802db0b (SSE streaming)
+- `routes/chat.py` (already emitted SSE) + `static/app.js` — **changed.** Frontend now POSTs
+  `stream=true` and consumes the `text/event-stream` via fetch+ReadableStream: an SSE frame parser
+  fills the reply bubble progressively on `event: delta` and replaces it with the final `say` on
+  `event: final` (say supersedes deltas — voice's reconciliation).
+- `adapters/fabric.py` — **changed.** Added `_await_correction`: after the front-door FusionDecision
+  lands, if `correction_grace_s > 0`, surface the front-door answer as a delta then hold the turn
+  open for a deep-tier `SpeechUtterance(cause="correction")` (published node-agnostically by
+  deep-mode) to supersede it — the deep answer barges in over the web reply, exactly as voice.
+- `config.py` + `.env.example` — **changed.** New `WEB_GATEWAY_CORRECTION_GRACE_S` (default 0 = off,
+  front-door reply is final/fast; ~15 catches the ~13s deep answer on web).
+- `tests/test_gateway.py` — **changed.** +SSE framing test (delta frames + exactly one final). 6 green.
+- Honest limit documented: cortex doesn't token-stream yet and fusion emits per-turn SpeechUtterance
+  only for allowlisted voice nodes, so a plain web turn yields one final today; progressive tokens
+  flow through this same path unchanged once logical-streaming lands.
+
 ## Deploy / live state
 - **Nothing deployed for the gateway.** Code-complete + unit-tested on the fake adapter; the live
   adapter's contract shapes validated against core-ai. Deploy = Matt's sudo step:

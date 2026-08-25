@@ -33,6 +33,10 @@ live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard 
   synthetic web-origin FeatureStream, reads FusionDecision.say). FakeAdapter runs the whole
   stack with no DDS (5 tests green). Google OAuth (authlib, iris@ G-Suite, allowlisted email).
   Bootstrap+htmx frontend. FeatureStream shape validated against real contracts on core-ai.
+  **SSE streaming wired** (commit 802db0b): `/chat` stream=true emits delta frames + one final;
+  frontend fills the bubble progressively. Deep-tier barge-in over web via a default-off
+  `CORRECTION_GRACE_S` knob (deep-mode's cause=correction SpeechUtterance is node-agnostic).
+  Honest limit: cortex doesn't token-stream yet → a plain web turn is one final today.
   **NOT deployed** — vendor contracts+bus, docker host-net on core-ai, + the web-origin spike =
   Matt's sudo step (README). Adapter B (new front-door) swaps in behind the same contract later.
 - **Voice-managed tasks LIVE** (add + read, grounded) — web-surface P1 first capability.
