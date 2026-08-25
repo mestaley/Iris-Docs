@@ -43,9 +43,9 @@ live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard 
   `feat/web-tasks-tools`) — curator fetches a session's recent turns from intake `:8015` by
   session_id and seeds a cortex `RECENT CONVERSATION` block, so a resumed conversation has literal
   continuity. Default mode **web** = web-origin turns only (voice path untouched). Synced to core-ai;
-  needs `sudo systemctl restart iris-curator iris-cortex-logical`. Pre-existing branch test failure
-  flagged: `test_fastpath.py::test_actuation_tools_are_side_effecting_only` (task tools in the reflex
-  catalog — separate design call; see changelog).
+  needs `sudo systemctl restart iris-curator iris-cortex-logical`. Also fixed the reflex-catalog
+  leak (commit e8c4714): the world-ai fast reflex was being offered task/reminder CRUD; scoped it
+  back to `category=='actuation'` (device control only). Curator suite 19/19 green.
 - **Voice-managed tasks LIVE** (add + read, grounded) — web-surface P1 first capability.
 - **Creative cortex RETIRED 2026-08-25** (migration step 2, `FUSION_EXECUTIVE_ENABLE_CREATIVE=false`
   + cortex-creative stopped): logical owns the grounded voice → ISSUE-005 confabulation dead at the

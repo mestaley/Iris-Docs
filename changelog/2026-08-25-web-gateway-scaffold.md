@@ -107,11 +107,12 @@ conversation-log subscriber went LIVE (separate changelog).
 - **Matt sudo:** `sudo systemctl restart iris-curator iris-cortex-logical` (activates the
   recent_conversation slot for web turns); vendor + docker build + `docker compose up -d` on core-ai;
   run the web-origin spike.
-- **Pre-existing branch failure (flagged, NOT fixed — separate design call):**
-  `curator/tests/test_fastpath.py::test_actuation_tools_are_side_effecting_only` fails on
-  `feat/web-tasks-tools` — `actuation_tools()` now includes the task/reminder tools added in 5976d3d,
-  but the test's expected set wasn't updated. Decide whether the world-ai reflex should be offered
-  `create_task`/`set_reminder` (then fix the set or exclude them from the reflex catalog).
+- **Reflex-catalog scope FIXED** (commit e8c4714): `actuation_tools()` offered the world-ai fast
+  reflex every side-effecting tool, so the task/reminder CRUD added in 5976d3d swept in. Decided:
+  the reflex is the low-latency *device-control* path and must NOT be offered task/reminder CRUD
+  (that's deliberate, cortex-owned). Filtered the reflex set on `category=='actuation'` (the tools
+  are already tagged), restoring it to control_device/control_media/select_content.
+  `test_actuation_tools_are_side_effecting_only` green; full curator suite 19 passed.
 - **Google OAuth setup:** create a Web OAuth client under the iris@ project; redirect URI
   `${WEB_GATEWAY_BASE_URL}/auth/callback`; drop client id/secret + a random session secret in `.env`.
 - **Next build:** SSE streaming (adapter deltas → frontend); the curator `recent_conversation` slot
