@@ -70,3 +70,16 @@ Fix (`feat/web-tasks-tools` `5976d3d`, curator only): (1) added the 4 defs to `c
 the real list instead of inventing one. Staged+validated on core-ai (catalog 15→19, `_wants_tasks` correct);
 restart `iris-curator` only. Store/API/routes were never the problem (proven via direct API round-trip).
 Lesson: adding a fabric tool = update BOTH catalogs; query tools must reach ambient, not just be callable.
+
+## 2026-08-25 — Cognition migration step 2: retire creative (ADR-003), staged
+Matt chose "retire Gemma → grounded voice" (then wants the MoE on the freed GPU1 next).
+Implemented as a flag: wired the existing `enable_creative` (was only in the dead legacy app.py)
+into the LIVE `ready_to_fire` — when off, a normal turn fires on the logical response alone
+(the fire path already synthesizes from logical when creative is absent, lines ~584). Grounded
+voice owns every turn → kills the ISSUE-005 confabulation at the root. `feat/punt-escalation`
+`4409158`; +2 tests green; staged on core-ai, INERT (default enabled).
+ACTIVATION (Matt sudo): add `FUSION_EXECUTIVE_ENABLE_CREATIVE=false` to /etc/iris-fabric/fusion-executive.env
+→ restart iris-fusion-executive → stop iris-cortex-creative (frees GPU1 / gemma3:12b for the MoE).
+TRADEOFF: logical does NOT stream (only creative did), so first-audio goes ~0.2s → ~2.5-3s (grounded
+but slower start). Follow-up if it bothers: add SpeechUtterance streaming to cortex-logical.
+NEXT (queued): stand up the deep MoE tier on the freed GPU1 (migration step 4).
