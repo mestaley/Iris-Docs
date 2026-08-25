@@ -125,6 +125,10 @@ front door, or fold everything into the one model and accept ~1s on trivial turn
 - Both are post-deep-tier. Interim: phi3.5 → GPU0 (frees GPU1 for the MoE now); Fold 1 later retires
   phi3.5 outright (freeing that GPU0 slot too).
 
+**DECIDED (Matt, 2026-08-25): Fold 1 ONLY.** Do the thalamus→14b fold (retire phi3.5, routing-as-tool-call).
+Do NOT do Fold 2 — keep the world-ai 7b reflex so trivial actuations ("lights on") stay sub-second; world-ai
+GPU stays as-is. The 3-tier speed ladder holds: 7b reflex → 14b front door → MoE deep.
+
 ## Why this fits the existing substrate (DDS + RTOS) — near-zero friction
 The punt/escalation model maps directly onto what's already built — a strong argument for it
 (the primitives exist; the substrate was arguably ahead of the cognition model):
