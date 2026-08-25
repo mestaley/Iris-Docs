@@ -58,3 +58,15 @@ and a roadmap sequencing.
 ## Follow-ups / owed
 - When P1 kicks off: a short design doc (EVENTS.md-style) resolving the open decisions in ADR-002/ISSUE-008 — tasks store (extend Events vs new `iris-tasks`), the text→fabric bridge shape, host + auth + frontend stack.
 - Still carried from 2026-08-23: run the voiceprint re-enrollment; push owed origin commits; the queued deferred doc merges.
+
+## 2026-08-25 continuation — voice-tasks bug fixed (found in live testing)
+Live test surfaced: "add X to my list" confabulated success (nothing created) and "what's on my list"
+hallucinated a grocery list. Root cause = a two-catalog gotcha: the builder registered the 4 task tools
+in `tool-registry/definitions.py` (dispatch) but NOT in `curator/tool_catalog.py` (the cortex-facing
+catalog — its own docstring says you must update both). So the cortex never saw the tools → confabulated.
+Fix (`feat/web-tasks-tools` `5976d3d`, curator only): (1) added the 4 defs to `curator/tool_catalog.py`
+→ cortex can call `create_task`; (2) curator now prefetches `get_tasks` into AMBIENT on list-query turns
+(`_wants_tasks` keyword trigger) → creative owns the voice and reads only ambient, so it now grounds on
+the real list instead of inventing one. Staged+validated on core-ai (catalog 15→19, `_wants_tasks` correct);
+restart `iris-curator` only. Store/API/routes were never the problem (proven via direct API round-trip).
+Lesson: adding a fabric tool = update BOTH catalogs; query tools must reach ambient, not just be callable.
