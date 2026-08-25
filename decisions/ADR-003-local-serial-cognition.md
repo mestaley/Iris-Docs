@@ -69,6 +69,20 @@ deep tier runs async and **barges in** with the better answer when it lands (reu
 barge-in). Existing primitives to build on: `needs_clarification` (→ a structured
 `needs_escalation`), the logical supervisor (reactive-escalation primitive), and barge-in.
 
+**The punt bridge (Matt, 2026-08-25) — speak a GENERATED holding line while the deep tier thinks.**
+A punt means a slow answer; the user shouldn't sit in silence. On punt, the front door (14b) does a
+quick second pass to generate a **situation-specific** "thinking out loud" bridge — NOT a canned
+array/dict of "one moment" fillers (generic + repetitive kills the persistent-presence feel).
+Speak the bridge immediately; the deep tier's real answer **barges in** when it lands. Architecture
+fit (same as everything): bridge = a normal `FusionDecision.say` published on punt; deep answer =
+a late `FusionDecision` correction/barge-in — the existing machinery. It's literally the thesis's
+"async streams of consciousness interleaved" made audible: fast acknowledgment, then deep answer.
+Design notes: the bridge must ACKNOWLEDGE + buy time in character, never promise a specific outcome
+it doesn't yet have ("the custody schedule's a tangle — let me actually work through it", not "the
+answer is X"); the bridge pass is short-output so it's ~sub-second (covers the multi-second deep
+wait). Scoped: only PUNTED turns get a bridge — normal front-door turns just answer. Lands WITH
+the deep-tier build (step 4).
+
 **Contention / pluralism = deferred to a RENTED experimentation lab, not local hardware.**
 It is the unproven capability — never worked as built, and possibly not what Matt wants. Don't
 commit scarce local VRAM to it. Two reasons to rent rather than cram it locally:
