@@ -112,6 +112,19 @@ expert is warranted.
 Front-door latency: keep the world-ai `7b` as a sub-second reflex *in front of* the 14B-class
 front door, or fold everything into the one model and accept ~1s on trivial turns. Cheap to try both.
 
+**Two SEPARATE folds (Matt, 2026-08-25) — don't conflate:**
+- **Fold 1 — thalamus (phi3.5) → the 14b (step 3).** Routing-as-tool-call (front door calls the
+  query tools it needs itself; reworks the curator prefetch flow). Retires phi3.5 (frees ~4GB on
+  its GPU, kills a hop, fixes ISSUE-002). Does NOT free world-ai. **Clear win — do it.**
+- **Fold 2 — the world-ai `7b` reflex → the 14b.** THIS is what frees world-ai's GPU. Cost: trivial
+  actuations ("lights on") go ~0.5s → ~2.5s (the most common command, slower). The endpointing win
+  (ISSUE-009) does NOT erase this — it's ~2s of real processing after the endpoint.
+  **Decision gate: what would world-ai's freed GPU be FOR?** If nothing pending → keep the reflex
+  (snappy lights). If for a named use (a creative-specialist expert / vision / Frigate) → fold it.
+  Lean: keep the reflex for now, measure the 14b front-door speed after Fold 1, fold only on a named use.
+- Both are post-deep-tier. Interim: phi3.5 → GPU0 (frees GPU1 for the MoE now); Fold 1 later retires
+  phi3.5 outright (freeing that GPU0 slot too).
+
 ## Why this fits the existing substrate (DDS + RTOS) — near-zero friction
 The punt/escalation model maps directly onto what's already built — a strong argument for it
 (the primitives exist; the substrate was arguably ahead of the cognition model):

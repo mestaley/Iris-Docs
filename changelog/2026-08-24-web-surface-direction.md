@@ -83,3 +83,22 @@ ACTIVATION (Matt sudo): add `FUSION_EXECUTIVE_ENABLE_CREATIVE=false` to /etc/iri
 TRADEOFF: logical does NOT stream (only creative did), so first-audio goes ~0.2s → ~2.5-3s (grounded
 but slower start). Follow-up if it bothers: add SpeechUtterance streaming to cortex-logical.
 NEXT (queued): stand up the deep MoE tier on the freed GPU1 (migration step 4).
+
+## 2026-08-25 — Deep tier: model + service (migration step 4, in progress)
+Matt: retire Gemma worked → stand up the MoE deep tier on freed GPU1.
+- **Model:** ollama has no q3 for qwen3:30b-a3b (smallest q4_K_M=19GB, won't fit 16GB). Decision (Matt):
+  import a Q3_K_M GGUF. Downloading `bartowski/Qwen_Qwen3-30B-A3B-Thinking-2507-GGUF` Q3_K_M (14.1GB,
+  fits) → will `ollama create qwen3-deep` on :11435 (GPU1). Thinking variant = the deliberator.
+- **phi3.5 → GPU0** (frees GPU1): thalamus is env-driven — `THALAMUS_OLLAMA_URL=http://127.0.0.1:11434`
+  + restart iris-thalamus (Matt).
+- **`iris-deep-mode` service BUILT + tested** (`feat/deep-mode` `a28e6f0`, worktree wt-deep-mode, off
+  feat/punt-escalation): SCHED_OTHER DDS peer, caches CONTEXT_CURATED by turn_id (LRU 256), subscribes
+  iris/punt/requested, runs the configurable deep model, **barges in via a direct SpeechUtterance**
+  (cause=correction, interrupt_prior) — the barge-in-after-fire risk RESOLVED (fusion's tombstone is on
+  the coordinator, not the speech topic; speech-output consumes utterances regardless). 6/6 tests. Gated
+  OFF (`DEEP_MODE_ENABLED=false`). Live barge-in spike recommended before enabling.
+- **Gap to fire:** only reactive `verify_failed` punts exist + `punt_publish=false` → deep tier idles
+  until a punt fires. For a first live test, manually publish a PuntRequest (web-spike style). Proactive
+  punt signals = migration step 5.
+- **Fold analysis** (ADR-003 open tunable): two SEPARATE folds — thalamus→14b (retires phi, win) vs
+  7b-reflex→14b (frees world-ai GPU but slows "lights on" ~0.5→2.5s; gate = a named use for that GPU).
