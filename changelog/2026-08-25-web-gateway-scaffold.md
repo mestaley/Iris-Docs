@@ -71,7 +71,30 @@ conversation-log subscriber went LIVE (separate changelog).
   only for allowlisted voice nodes, so a plain web turn yields one final today; progressive tokens
   flow through this same path unchanged once logical-streaming lands.
 
+### iris-fusion-fabric — branch `feat/web-tasks-tools` — commit 2d9161e (recent_conversation slot)
+- `curator/src/curator/config.py` — **changed.** New settings: `recent_conversation_mode`
+  (off|web|all, default **web**), `recent_conversation_turns` (12), `recent_conversation_max_chars`
+  (400), `intake_url` (127.0.0.1:8015), `intake_timeout_s` (0.4).
+- `curator/src/curator/service.py` — **changed.** `_recent_conversation_enabled(origin_node)` gate +
+  `_fetch_recent_conversation(session_id, exclude_turn_id)` (sync urllib, 0.4s timeout, bounded,
+  excludes the current turn, silent-degrades to []); injects `ambient["recent_conversation"]` in
+  `_build_curated_context` when enabled for the turn's origin.
+- `curator/src/curator/coordinator.py` — **changed.** `_TurnState.recent_conversation` memo field
+  (fetch once, ride v0+v1).
+- `cortex-logical/src/cortex_logical/prompt.py` — **changed.** `_render_recent_conversation` +
+  a dedicated `RECENT CONVERSATION` block (excluded from the AMBIENT DATA else-dump).
+- `curator/tests/test_recent_conversation.py` — **added** (9 tests: gating, bounded fetch, silent
+  degrade, injection for web, skip for voice). `cortex-logical/tests/test_prompt.py` — **changed**
+  (+3 render tests). All green. **Synced to core-ai** (staged; needs curator + cortex-logical restart).
+
+### iris-web-gateway — branch `main` — commit (adapter cleanup)
+- `adapters/fabric.py` — **changed.** Dropped the `trace["resume_turns"]` hack; the adapter passes
+  only `session_id` (curator fetches history by id). `resume` stays in the Protocol for Adapter B.
+
 ## Deploy / live state
+- **recent_conversation slot STAGED on core-ai** — curator + cortex-logical files synced; needs
+  `sudo systemctl restart iris-curator iris-cortex-logical` (Matt). Default mode **web** → affects
+  ONLY web-origin turns; the live voice path is untouched until mode is widened to `all`.
 - **Nothing deployed for the gateway.** Code-complete + unit-tested on the fake adapter; the live
   adapter's contract shapes validated against core-ai. Deploy = Matt's sudo step:
   `scripts/vendor-fabric.sh` → `docker compose build && up -d` on core-ai (host networking) →
@@ -81,7 +104,14 @@ conversation-log subscriber went LIVE (separate changelog).
 ## Follow-ups / owed
 - **Origin push owed** (automation can't push): iris-web-gateway `main` 06eea8e (new repo — needs
   creating on the remote first); volition `feat/web-tasks-tools` 7595914; iris-docs.
-- **Matt sudo:** vendor + docker build + `docker compose up -d` on core-ai; run the web-origin spike.
+- **Matt sudo:** `sudo systemctl restart iris-curator iris-cortex-logical` (activates the
+  recent_conversation slot for web turns); vendor + docker build + `docker compose up -d` on core-ai;
+  run the web-origin spike.
+- **Pre-existing branch failure (flagged, NOT fixed — separate design call):**
+  `curator/tests/test_fastpath.py::test_actuation_tools_are_side_effecting_only` fails on
+  `feat/web-tasks-tools` — `actuation_tools()` now includes the task/reminder tools added in 5976d3d,
+  but the test's expected set wasn't updated. Decide whether the world-ai reflex should be offered
+  `create_task`/`set_reminder` (then fix the set or exclude them from the reflex catalog).
 - **Google OAuth setup:** create a Web OAuth client under the iris@ project; redirect URI
   `${WEB_GATEWAY_BASE_URL}/auth/callback`; drop client id/secret + a random session secret in `.env`.
 - **Next build:** SSE streaming (adapter deltas → frontend); the curator `recent_conversation` slot
