@@ -39,13 +39,13 @@ live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard 
   Honest limit: cortex doesn't token-stream yet → a plain web turn is one final today.
   **NOT deployed** — vendor contracts+bus, docker host-net on core-ai, + the web-origin spike =
   Matt's sudo step (README). Adapter B (new front-door) swaps in behind the same contract later.
-- **recent_conversation slot STAGED 2026-08-25** (curator + cortex-logical, commit 2d9161e on
-  `feat/web-tasks-tools`) — curator fetches a session's recent turns from intake `:8015` by
-  session_id and seeds a cortex `RECENT CONVERSATION` block, so a resumed conversation has literal
-  continuity. Default mode **web** = web-origin turns only (voice path untouched). Synced to core-ai;
-  needs `sudo systemctl restart iris-curator iris-cortex-logical`. Also fixed the reflex-catalog
-  leak (commit e8c4714): the world-ai fast reflex was being offered task/reminder CRUD; scoped it
-  back to `category=='actuation'` (device control only). Curator suite 19/19 green.
+- **recent_conversation slot LIVE 2026-08-25** (curator + cortex-logical restarted clean, commit
+  2d9161e on `feat/web-tasks-tools`) — curator fetches a session's recent turns from intake `:8015`
+  by session_id and seeds a cortex `RECENT CONVERSATION` block, so a resumed conversation has literal
+  continuity. Mode **web** (confirmed loaded) = web-origin turns only, so it's inert until the web
+  gateway is deployed; voice path untouched. Also **LIVE**: the reflex-catalog fix (commit e8c4714)
+  scoping the world-ai fast reflex to `category=='actuation'` (device control only, no task/reminder
+  CRUD) — confirmed `actuation_tools()` = control_device/control_media/select_content. Suite 19/19.
 - **Voice-managed tasks LIVE** (add + read, grounded) — web-surface P1 first capability.
 - **Creative cortex RETIRED 2026-08-25** (migration step 2, `FUSION_EXECUTIVE_ENABLE_CREATIVE=false`
   + cortex-creative stopped): logical owns the grounded voice → ISSUE-005 confabulation dead at the
