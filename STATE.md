@@ -23,6 +23,18 @@ cognitive-event-stream). Deferred: DDS topic-table reference appendix, PROMPTS.m
 live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard prompt rule.
 
 ## V2 progress (live)
+- **Conversation-log subscriber LIVE 2026-08-25** (iris-volition restarted): every turn's
+  user text (FeatureStream) + Iris reply (FusionDecision) is joined by turn_id and persisted to
+  `conversation_turns` (surface voice|web) — the transcript the web surface renders/resumes.
+  Branch `feat/web-tasks-tools` (commit 7595914, push owed). 129 volition tests green.
+- **Web-gateway SCAFFOLDED 2026-08-25** (new repo `iris-web-gateway`, commit 06eea8e) — thin
+  FastAPI: `/api/*` proxies CRUD to intake `:8015`; `/chat` bridges to live cognition via the
+  Turn-Entry Contract (`CurrentFabricAdapter` = long-lived DDS peer, domain 42, publishes a
+  synthetic web-origin FeatureStream, reads FusionDecision.say). FakeAdapter runs the whole
+  stack with no DDS (5 tests green). Google OAuth (authlib, iris@ G-Suite, allowlisted email).
+  Bootstrap+htmx frontend. FeatureStream shape validated against real contracts on core-ai.
+  **NOT deployed** — vendor contracts+bus, docker host-net on core-ai, + the web-origin spike =
+  Matt's sudo step (README). Adapter B (new front-door) swaps in behind the same contract later.
 - **Voice-managed tasks LIVE** (add + read, grounded) — web-surface P1 first capability.
 - **Creative cortex RETIRED 2026-08-25** (migration step 2, `FUSION_EXECUTIVE_ENABLE_CREATIVE=false`
   + cortex-creative stopped): logical owns the grounded voice → ISSUE-005 confabulation dead at the
