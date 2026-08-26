@@ -91,6 +91,14 @@ conversation-log subscriber went LIVE (separate changelog).
 - `adapters/fabric.py` — **changed.** Dropped the `trace["resume_turns"]` hack; the adapter passes
   only `session_id` (curator fetches history by id). `resume` stays in the Protocol for Adapter B.
 
+### iris-web-gateway — branch `main` — commit aac675c (deploy + smoke)
+- `scripts/deploy.sh` — **added.** Idempotent core-ai deploy: vendor contracts+bus → compose build
+  → up -d → wait for /health. Touches nothing on the bus.
+- `scripts/smoke_bridge.py` + `scripts/smoke.sh` — **added.** Confirmation-gated live bridge check
+  (§6.6 spike): drives the real `CurrentFabricAdapter` inside the container (no OAuth) with ONE
+  fixed non-actuating weather query on a throwaway session; asserts a `FusionDecision.say` returns.
+- `README.md` — **changed.** Deploy section points at the two scripts.
+
 ## Deploy / live state
 - **recent_conversation slot STAGED on core-ai** — curator + cortex-logical files synced; needs
   `sudo systemctl restart iris-curator iris-cortex-logical` (Matt). Default mode **web** → affects
@@ -105,8 +113,9 @@ conversation-log subscriber went LIVE (separate changelog).
 - **Origin push owed** (automation can't push): iris-web-gateway `main` 06eea8e (new repo — needs
   creating on the remote first); volition `feat/web-tasks-tools` 7595914; iris-docs.
 - **Matt sudo:** `sudo systemctl restart iris-curator iris-cortex-logical` (activates the
-  recent_conversation slot for web turns); vendor + docker build + `docker compose up -d` on core-ai;
-  run the web-origin spike.
+  recent_conversation slot for web turns) — DONE 2026-08-25, both restarted clean, LIVE.
+  Gateway deploy is now turnkey: `./scripts/deploy.sh` then `./scripts/smoke.sh` on core-ai
+  (after `cp .env.example .env` + Google creds).
 - **Reflex-catalog scope FIXED** (commit e8c4714): `actuation_tools()` offered the world-ai fast
   reflex every side-effecting tool, so the task/reminder CRUD added in 5976d3d swept in. Decided:
   the reflex is the low-latency *device-control* path and must NOT be offered task/reminder CRUD
