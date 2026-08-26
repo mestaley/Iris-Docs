@@ -35,10 +35,28 @@ iris-cortex-logical`.**
   qwen3-deep cold-start (8.61s) worsening the barge-in latency. Both deferred per Matt ("just do 1 and 2").
 - `STATE.md`, `changelog/2026-08-26-…` — **changed/added** (this).
 
+### iris-fusion-fabric — branch `feat/punt-escalation` (wt-punt) — commit (fusion confirm override)
+- `fusion-executive/src/fusion_executive/service.py` — **changed.** Live re-test (turn-2c00dc57,
+  "lights to 35%") showed the cortex-logical ack does NOT fire: the reflex outcome often isn't on the
+  CuratedContext logical ran on (known race), so `ctx.fastpath` is None and logical returns empty →
+  fusion voiced the filler again. Added `_should_confirm_actuation()`: when synthesis fell to
+  `neither_confident` but a device actuation succeeded this turn (and none failed), override say →
+  "Done." (say-only, mirrors the failed-actuation correction). This is the RELIABLE fix (fusion has
+  the ground truth); the cortex-logical ack stays as the cleaner path when its context does carry the
+  reflex. +4 tests, fusion suite 40 green.
+
+## Validation (live)
+- **turn-2c00dc57** ("turn the kitchen lights on to 35%", 14:31): reflex actuated+verified.
+  **Fix #1 confirmed LIVE** — `PROACTIVE-PUNT suppressed reason=self_uncertain (actuation succeeded
+  this turn)`, deep-mode silent, no barge-in. **Fix #2 (cortex-logical) did NOT fire** (ctx.fastpath
+  race) → filler still voiced → drove the fusion-side confirm override above. Re-test pending after
+  the next fusion restart.
+
 ## Deploy / live state
-- **STAGED on core-ai** — both service.py files synced to `/opt/iris-fusion-fabric`. Needs
-  `sudo systemctl restart iris-fusion-executive iris-cortex-logical` (Matt). After restart: a
-  reflex-satisfied actuation turn says a terse "Done." and does NOT spuriously punt to the deep tier.
+- **Fix #1 (punt suppression) LIVE + confirmed** (fusion restarted 2026-08-26 14:31).
+- **Fusion confirm override STAGED** — service.py synced; needs one more
+  `sudo systemctl restart iris-fusion-executive`, then re-test a light command (expect say="Done.",
+  no filler). cortex-logical fix #2 already deployed (harmless; fires only when ctx.fastpath present).
 - Nothing else changed. The reflex actuation itself was always correct.
 
 ## Follow-ups / owed
