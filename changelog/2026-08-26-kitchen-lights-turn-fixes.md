@@ -69,3 +69,30 @@ iris-cortex-logical`.**
 - **Origin pushes owed:** `feat/punt-escalation` (fusion), `feat/web-tasks-tools` (cortex), iris-docs.
 - **ISSUE-010** (deferred): deep-mode output grooming + qwen3-deep warm-keep; and the standing
   question of whether the deep tier belongs on the voice path at all.
+
+---
+
+# 2026-08-26 (later) — Web chat had no memory: recent_conversation fetch bug
+
+## Executive summary
+First real web chat: Iris didn't remember earlier turns. Root cause found live — the curator's
+`_fetch_recent_conversation` treated the intake's `/conversations/{id}` response as a bare list,
+but it returns `{"session_id":..., "turns":[...]}`. So `isinstance(rows, list)` was always False →
+returned `[]` → the recent_conversation slot NEVER injected → no literal context on any web/resumed
+turn. The turns WERE being logged correctly (conversation-log subscriber fine) and the fetch WAS
+hitting the intake (200s) — it just parsed the wrong shape. Same wrong assumption also broke the
+gateway's resume seeder and history-view. Fixed all three; frontend session-reuse verified working
+(the SSE `final` frame carries session_id; the earlier "new session per turn" was stale state).
+
+## Changes by repo
+- **iris-fusion-fabric `feat/web-tasks-tools`** — `curator/src/curator/service.py`: extract `.turns`
+  from the intake response (tolerates a bare list too). `curator/tests/test_recent_conversation.py`:
+  fake now returns the real `{turns:[...]}` shape. 9 green. **STAGED — needs `sudo systemctl restart
+  iris-curator`.**
+- **iris-web-gateway `main`** — `routes/chat.py` (`_resume_context`) + `static/app.js` (`openSession`):
+  same `.turns` extraction so resume + the sidebar history render. Container rebuilt + healthy.
+
+## Deploy / live state
+- Gateway container: rebuilt, live. Curator fix: STAGED, needs iris-curator restart.
+- After restart: within a web (or resumed) conversation, the cortex gets a RECENT CONVERSATION block
+  and Iris carries context turn-to-turn.
