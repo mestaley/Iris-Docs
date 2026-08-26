@@ -110,10 +110,18 @@ conversation-log subscriber went LIVE (separate changelog).
   turn round-tripped a grounded weather answer ("It's clear… seventy-two degrees…", turn-web-afd1e9cb),
   silent (web bypasses speech nodes). NOTE: Matt's `deploy.sh` run left the container not-up; brought
   up manually with `docker compose up -d`.
-- **Remaining for browser access:** Cloudflare public hostname `iris.mattstaley.com` → the origin,
-  and the auth model — Model A needs the Google client (`.env` has AUTH_ENABLED=true; /login is inert
-  until GOOGLE_CLIENT_ID/SECRET are set) or Model B (Cloudflare Access + AUTH_ENABLED=false). See
-  AUTH.md/DEPLOY.md step 5. The /chat bridge + /api proxy are wired; the UI awaits sign-in.
+- **Auth = Model B (Cloudflare Access) 2026-08-26** — ZTNA working, so `WEB_GATEWAY_AUTH_ENABLED=false`
+  in `.env`, container recreated. All endpoints now serve without app auth: `GET /` 200 (renders the
+  shell: task board + conversations + chat), `/api/tasks` 200, `/chat/sessions` 200. Fixed a
+  deploy-blocking bug: `GET /` 500'd (`unhashable type: dict`) — pages.py used the old
+  `TemplateResponse(name, context)` form but the installed Starlette wants request-first; the context
+  dict was being read as the template name. Fixed to `TemplateResponse(request, name, ctx)` + added a
+  page-render test (commit 3a8bf42). No test had covered `/` before.
+- **SECURITY FLAG (Model B):** with app auth off and the container on host networking binding
+  `0.0.0.0:8030`, a direct LAN hit on `core-ai:8030` **bypasses Cloudflare Access** (no CF header →
+  the app treats it as the dev stub = full access to a house-actuating surface). Fine on a trusted LAN
+  "for now" (Matt's call), but the real lockdown is to bind the origin to 127.0.0.1 (or firewall 8030)
+  so only the tunnel reaches it — depends on where cloudflared runs relative to core-ai. See AUTH.md Model B.
 - The conversation-log subscriber IS live (iris-volition restarted 2026-08-25) — separate entry.
 
 ## Follow-ups / owed
