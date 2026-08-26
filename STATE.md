@@ -27,6 +27,11 @@ live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard 
   user text (FeatureStream) + Iris reply (FusionDecision) is joined by turn_id and persisted to
   `conversation_turns` (surface voice|web) — the transcript the web surface renders/resumes.
   Branch `feat/web-tasks-tools` (commit 7595914, push owed). 129 volition tests green.
+- **Web-gateway LIVE on core-ai 2026-08-26** — container up (`~/iris-web-gateway`, docker host-net,
+  restart:unless-stopped), `/health` ok, `CurrentFabricAdapter live on the bus`. Bridge PROVEN: a
+  web-origin turn round-tripped a grounded weather answer (silent — web bypasses speech nodes).
+  Browser access still needs the Cloudflare hostname + an auth model (Google client for Model A, or
+  Cloudflare Access for Model B — AUTH.md). The /chat bridge + /api proxy to intake :8015 are wired.
 - **Web-gateway SCAFFOLDED 2026-08-25** (new repo `iris-web-gateway`, commit 06eea8e) — thin
   FastAPI: `/api/*` proxies CRUD to intake `:8015`; `/chat` bridges to live cognition via the
   Turn-Entry Contract (`CurrentFabricAdapter` = long-lived DDS peer, domain 42, publishes a

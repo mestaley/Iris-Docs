@@ -103,11 +103,17 @@ conversation-log subscriber went LIVE (separate changelog).
 - **recent_conversation slot STAGED on core-ai** — curator + cortex-logical files synced; needs
   `sudo systemctl restart iris-curator iris-cortex-logical` (Matt). Default mode **web** → affects
   ONLY web-origin turns; the live voice path is untouched until mode is widened to `all`.
-- **Gateway STAGED on core-ai 2026-08-26** — repo rsync'd to `~/iris-web-gateway` (matt's home;
-  `/opt` is root-owned), fabric packages vendored there, `.git` intact. Env verified: docker compose
-  is sudoless on core-ai, :8030 free, intake :8015 healthy. Not built/up. Remaining for Matt (no
-  origin push needed for the deploy): fill `.env` → `./scripts/deploy.sh` → `./scripts/smoke.sh` →
-  Cloudflare hostname + auth. Runbook: `DEPLOY.md`; auth: `AUTH.md`.
+- **Gateway LIVE on core-ai 2026-08-26** — running from `~/iris-web-gateway` (docker compose,
+  host networking, `restart: unless-stopped`). `/health` → `{"ok":true,"adapter":"fabric"}`;
+  `CurrentFabricAdapter live on the bus (producer=web-gateway@core-ai)`. Image builds clean
+  (contracts 0.22.0, bus 0.7.0, cyclonedds 11.0.1). **Bridge PROVEN** via smoke_bridge: a web-origin
+  turn round-tripped a grounded weather answer ("It's clear… seventy-two degrees…", turn-web-afd1e9cb),
+  silent (web bypasses speech nodes). NOTE: Matt's `deploy.sh` run left the container not-up; brought
+  up manually with `docker compose up -d`.
+- **Remaining for browser access:** Cloudflare public hostname `iris.mattstaley.com` → the origin,
+  and the auth model — Model A needs the Google client (`.env` has AUTH_ENABLED=true; /login is inert
+  until GOOGLE_CLIENT_ID/SECRET are set) or Model B (Cloudflare Access + AUTH_ENABLED=false). See
+  AUTH.md/DEPLOY.md step 5. The /chat bridge + /api proxy are wired; the UI awaits sign-in.
 - The conversation-log subscriber IS live (iris-volition restarted 2026-08-25) — separate entry.
 
 ## Follow-ups / owed
