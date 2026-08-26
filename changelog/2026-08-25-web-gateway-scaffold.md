@@ -122,8 +122,13 @@ conversation-log subscriber went LIVE (separate changelog).
   (that's deliberate, cortex-owned). Filtered the reflex set on `category=='actuation'` (the tools
   are already tagged), restoring it to control_device/control_media/select_content.
   `test_actuation_tools_are_side_effecting_only` green; full curator suite 19 passed.
-- **Google OAuth setup:** create a Web OAuth client under the iris@ project; redirect URI
-  `${WEB_GATEWAY_BASE_URL}/auth/callback`; drop client id/secret + a random session secret in `.env`.
+- **Auth setup DOCUMENTED (`AUTH.md`, commit d4b97a0):** deploy behind Cloudflare at
+  `https://iris.mattstaley.com` (TLS at the edge; ZTNA on bastion-01). Two models — **A** app
+  Google OAuth (exact console steps; redirect `https://iris.mattstaley.com/auth/callback`), **B**
+  Cloudflare Access at the edge with `AUTH_ENABLED=false` + origin lockdown. Code hardened for the
+  https-behind-proxy deploy: `BASE_URL` default→https, Secure cookie auto-derived, uvicorn
+  `--proxy-headers`, and `current_user` surfaces `Cf-Access-Authenticated-User-Email` (Model B).
+  Remaining for Matt: create the Google client (Model A) **or** an Access app (Model B), fill `.env`.
 - **Next build:** SSE streaming (adapter deltas → frontend); the curator `recent_conversation` slot
   for full prompt-level resume (continuity today is via shared session_id + memory recall);
   vendor Bootstrap/htmx for a fully offline LAN; Adapter B swap when the new front-door lands.
