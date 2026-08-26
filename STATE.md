@@ -67,6 +67,11 @@ live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard 
   (`feat/web-tasks-tools`, fires when ctx.fastpath present). Confirmed clean on turn-7cfb202e (says
   "Done.", no filler, no barge-in). Suites 40 + 57 green. Residual deep-mode grooming + warm-keep →
   ISSUE-010 (deferred).
+- **Web-chat memory FIXED + confirmed 2026-08-26**: recent_conversation fetch parsed the intake
+  response as a bare list but it's `{turns:[...]}` — always returned [], so no context injected.
+  Fixed (curator .turns extraction, iris-curator restarted); two-turn web test recalls ("the number
+  was forty-two", recent_conversation now in ambient_keys). Gateway resume/history + app.js cache-bust
+  also fixed. If a browser still forgets, suspect stale cached app.js (hard-refresh) or CF SSE buffering.
 
 ## Versioning — this is Iris V2 (declared 2026-08-24)
 - **V1 (live now):** the async streaming DDS fabric with **two-cortex cognitive pluralism** —
