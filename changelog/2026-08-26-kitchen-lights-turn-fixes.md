@@ -52,12 +52,17 @@ iris-cortex-logical`.**
   race) → filler still voiced → drove the fusion-side confirm override above. Re-test pending after
   the next fusion restart.
 
-## Deploy / live state
-- **Fix #1 (punt suppression) LIVE + confirmed** (fusion restarted 2026-08-26 14:31).
-- **Fusion confirm override STAGED** — service.py synced; needs one more
-  `sudo systemctl restart iris-fusion-executive`, then re-test a light command (expect say="Done.",
-  no filler). cortex-logical fix #2 already deployed (harmless; fires only when ctx.fastpath present).
-- Nothing else changed. The reflex actuation itself was always correct.
+## Deploy / live state — ALL LIVE + VALIDATED 2026-08-26
+- **Both fixes LIVE and confirmed on real turns.** turn-2c00dc57 confirmed fix #1 (punt suppressed,
+  no barge-in). turn-7cfb202e ("kitchen lights to 30%", 14:45, after the final fusion restart) is
+  fully clean: cortex-logical fired the ack (`pass1 empty on fastpath-satisfied turn — confirming
+  say='Done.'`, ctx.fastpath present this turn) → fusion `logical_dominant say='Done.'` (2793ms) →
+  voiced "Done.", no filler, no punt, deep-mode silent.
+- The cortex ack (fix #2) and the fusion override are complementary: cortex handles it cleanly when
+  its context carries the reflex; fusion is the reliable backstop when the race hides it (both
+  deployed, both unit-tested). The reflex actuation itself was always correct.
+- Aside (NOT actioned, pre-existing): the reflex logs `room=basement` for a kitchen light and the
+  reply routed to vg-02 — a room-hint / node-routing quirk unrelated to these fixes.
 
 ## Follow-ups / owed
 - **Matt sudo:** restart iris-fusion-executive + iris-cortex-logical.

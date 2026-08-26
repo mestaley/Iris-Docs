@@ -54,12 +54,14 @@ live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard 
 - **Deep tier (qwen3-deep, 30B-A3B instruct) PROVEN LIVE 2026-08-25** — deliberates on grounded context, barges in over the front-door answer (~13s). GPU1. Still fires only on MANUAL punts (proactive punt signals = step 5). See changelog.
 - **Shadow-punt measuring** (step 1). Surprise finding: no-streaming *feels faster* → perceived latency
   is VAD endpointing, not cortex first-audio (ISSUE-009).
-- **Spurious-punt fixes STAGED 2026-08-26** (turn-3ca38ed3 review): a reflex-satisfied "lights to 20%"
-  voiced a filler + a rambling deep-tier barge-in. Root cause: cortex-logical empty pass1 → fusion
-  neither_confident + self_uncertain punt. Fixed both — fusion suppresses proactive punt on actuation
-  success (`feat/punt-escalation`); cortex-logical confirms "Done." on a fastpath-satisfied empty pass1
-  (`feat/web-tasks-tools`). Suites 36 + 57 green. **Needs `sudo systemctl restart iris-fusion-executive
-  iris-cortex-logical`.** Residual deep-mode grooming + warm-keep → ISSUE-010 (deferred).
+- **Spurious-punt fixes LIVE + VALIDATED 2026-08-26** (turn-3ca38ed3 review): a reflex-satisfied
+  "lights to 20%" voiced a filler + a rambling deep-tier barge-in. Root cause: cortex-logical empty
+  pass1 → fusion neither_confident + self_uncertain punt. Fixed at both layers — fusion suppresses the
+  proactive punt on actuation success AND overrides the filler → "Done." when actuated_ok
+  (`feat/punt-escalation`); cortex-logical confirms "Done." on a fastpath-satisfied empty pass1
+  (`feat/web-tasks-tools`, fires when ctx.fastpath present). Confirmed clean on turn-7cfb202e (says
+  "Done.", no filler, no barge-in). Suites 40 + 57 green. Residual deep-mode grooming + warm-keep →
+  ISSUE-010 (deferred).
 
 ## Versioning — this is Iris V2 (declared 2026-08-24)
 - **V1 (live now):** the async streaming DDS fabric with **two-cortex cognitive pluralism** —
