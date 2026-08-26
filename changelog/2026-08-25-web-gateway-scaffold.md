@@ -103,10 +103,11 @@ conversation-log subscriber went LIVE (separate changelog).
 - **recent_conversation slot STAGED on core-ai** — curator + cortex-logical files synced; needs
   `sudo systemctl restart iris-curator iris-cortex-logical` (Matt). Default mode **web** → affects
   ONLY web-origin turns; the live voice path is untouched until mode is widened to `all`.
-- **Nothing deployed for the gateway.** Code-complete + unit-tested on the fake adapter; the live
-  adapter's contract shapes validated against core-ai. Deploy = Matt's sudo step:
-  `scripts/vendor-fabric.sh` → `docker compose build && up -d` on core-ai (host networking) →
-  the web-origin spike (non-actuating query on a test session; confirm fusion voices the web turn).
+- **Gateway STAGED on core-ai 2026-08-26** — repo rsync'd to `~/iris-web-gateway` (matt's home;
+  `/opt` is root-owned), fabric packages vendored there, `.git` intact. Env verified: docker compose
+  is sudoless on core-ai, :8030 free, intake :8015 healthy. Not built/up. Remaining for Matt (no
+  origin push needed for the deploy): fill `.env` → `./scripts/deploy.sh` → `./scripts/smoke.sh` →
+  Cloudflare hostname + auth. Runbook: `DEPLOY.md`; auth: `AUTH.md`.
 - The conversation-log subscriber IS live (iris-volition restarted 2026-08-25) — separate entry.
 
 ## Follow-ups / owed
