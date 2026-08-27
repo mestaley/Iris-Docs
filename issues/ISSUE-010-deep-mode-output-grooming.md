@@ -1,6 +1,9 @@
 # ISSUE-010: Deep-mode barge-in leaks internals + is cold-start slow
 
-- Status: open (found 2026-08-26 reviewing turn-3ca38ed3; the two spurious-punt bugs are FIXED — see below)
+- Status: **RESOLVED (built) 2026-08-27** — grooming + warm-keep implemented on `feat/deep-mode`
+  (commit on wt-deep-mode); STAGED to core-ai, needs `sudo systemctl restart iris-deep-mode`. See
+  "Resolution" at the bottom. (Originally found 2026-08-26 reviewing turn-3ca38ed3; the two
+  spurious-punt bugs were fixed then.)
 - Severity: medium (voice quality when the deep tier does speak; not a correctness bug)
 - Area: cognition / iris-deep-mode (+ ollama warmth)
 
@@ -41,3 +44,23 @@ were exposed but are real whenever the deep tier legitimately barges in:
 turn-3ca38ed3, deep-mode log 12:39:14→12:39:24 ("deliberating (qwen3-deep)", runner load 8.61s,
 "barged in deep answer"); speech-output synth'd it cleanly (the audio wasn't the problem, the text
 was). Full trace in the 2026-08-26 changelog.
+
+## Resolution (2026-08-27) — deep-mode `feat/deep-mode`
+Both parts built + tested (deep-mode suite 10 green), STAGED to core-ai:
+- **Grooming — prompt contract** (`service.py build_prompts`): system now says answer OUT LOUD in
+  Iris's voice, no thinking-aloud / step narration ("let me…", "I'll…", "Right then", "Got it"),
+  and never speak technical identifiers/entity_ids (with the `light.kitchen_lights` example).
+- **Grooming — facts filter**: `_INTERNAL_AMBIENT_KEYS` keeps `entity_mappings` (the id leak
+  source), `current_hour_24`, and `recent_conversation` OUT of the facts dump, so the model can't
+  parrot them.
+- **Grooming — post-filter** (`groom_for_speech`): humanizes any HA entity_id that still slips
+  through (`light.kitchen_lights` → "kitchen lights") before the utterance is published. Applied in
+  `_deliberate_and_barge`.
+- **Warm-keep** (`config.py` + `deep_client.py` + `service.py main`): pass `keep_alive` to ollama
+  (`DEEP_MODE_KEEP_ALIVE_S`, default -1 = resident) and fire one tiny warm-up call at startup
+  (`DEEP_MODE_WARM_ON_START`, only when enabled) so the first real punt doesn't pay the ~8.6s cold
+  start.
+
+**Owed:** `sudo systemctl restart iris-deep-mode`; origin push of `feat/deep-mode`.
+**Still open (the standing question, NOT built):** whether the deep tier belongs on the *voice*
+path at all vs. the web/research surface — deferred.
