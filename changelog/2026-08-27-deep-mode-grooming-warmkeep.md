@@ -27,3 +27,14 @@ core-ai — needs `sudo systemctl restart iris-deep-mode`.
 - **Matt sudo:** restart iris-deep-mode.
 - **Origin push:** `feat/deep-mode`.
 - **Still open (deferred):** whether the deep tier belongs on the voice path at all vs. web/research.
+
+## Validation (live 2026-08-28)
+- **Warm-keep: confirmed.** Startup log `warming deep model qwen3-deep (keep_alive=-1s)… warm-up OK`
+  (cold-start paid at boot 14:42:28→37); ollama `/api/ps` shows qwen3-deep resident (expires 2318 =
+  forever). A live complexity punt (turn-web-276be787) deliberated → **barged in ~1s** (14:45:20→21),
+  vs the ~8.6s cold-start that opened the issue.
+- **Grooming: works.** The deep answer to a hard advice question came out as a clean spoken reply, no
+  entity_ids, no device-planning monologue. It opened "Right then," — which the first prompt banned;
+  that ban was misjudged (dry-British Iris persona; the real leak was reasoning/action narration, not
+  a conversational opener). Prompt reworded to forbid play-by-play-of-thinking while allowing a
+  natural opener (commit on `feat/deep-mode`). STAGED — takes effect on the next iris-deep-mode restart.
