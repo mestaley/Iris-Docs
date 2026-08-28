@@ -27,3 +27,18 @@ iris-fusion-executive + iris-deep-mode (cortex-logical optional; fusion re-denag
 - **Decision for Matt:** how Iris addresses him — "Mr Staley" (Jarvis-style) vs just "Matt"
   (current). Not baked in pending his call.
 - Origin pushes still owed (this change rides the three feature branches).
+
+---
+## Follow-on: contextual address form (2026-08-28)
+Matt: let Iris choose "Matt" / "sir" / "Mr. Staley" by context rather than a fixed honorific.
+Address is generative (a judgment, not a mechanical strip), so it went into curator's
+`IDENTITY_ANCHOR` — the anchor curator sets on CuratedContext, reaching BOTH cortex-logical and
+the deep tier. Default "Matt"; "sir" for formal/dry-deferential moments; "Mr. Staley" rarely for
+mock-formal effect; don't name-tag every reply. Deployed to core-ai, **needs `sudo systemctl
+restart iris-curator`**. Commit on `feat/web-tasks-tools`.
+
+## Consolidated restarts owed (Matt sudo)
+- `iris-fusion-executive` — opener strip on the front-door say.
+- `iris-deep-mode` — opener strip in the barge-in groomer.
+- `iris-curator` — contextual address anchor.
+- (cortex-logical optional — fusion re-denags the final say.)
