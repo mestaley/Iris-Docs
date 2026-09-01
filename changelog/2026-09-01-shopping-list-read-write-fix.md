@@ -27,3 +27,19 @@ the store live (kept the 2 real items). Read/write fixes STAGED — need cortex-
   suggests a compound/retry misfire worth watching; if it recurs, add a dispatch-side guard (reject
   create_task whose title matches an actuation verb) — deferred pending recurrence.
 - Origin pushes still owed (rides feat/web-tasks-tools + the other feature branches).
+
+---
+## Follow-on (same day): the add path
+Live test after restart: READ works ("Your shopping list currently includes Greek yogurt and
+Swiffer dusters"). But the ADD exposed two more bugs — it stored the whole sentence and voiced the
+filler. Fixed:
+- `volition/.../tasks_routes.py` — `_normalize_title` at the create route: "add X to the … list" →
+  item ("Paper towels"); plain titles untouched. Every create path (voice + web). +1 test.
+- `fusion-executive/.../service.py` — broadened `_actuation_succeeded` to the write tools
+  (create_task/update_task/set_reminder/mute + actuation), so a completed task write with an empty
+  front door confirms ("Done.") instead of the filler, and suppresses a spurious punt. +1 test.
+- Store: renamed the stray "add paper towels…" test task → "Paper towels". List = Greek yogurt,
+  Swiffer dusters, Paper towels.
+
+**Owed (Matt sudo):** `sudo systemctl restart iris-volition iris-fusion-executive` — then the add
+path stores clean + confirms.
