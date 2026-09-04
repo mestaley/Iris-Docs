@@ -1,6 +1,6 @@
 # ADR-004: Automaticity vs. attention — kill "punt", weave a salience-gated parallel deliberation
 
-- Status: **proposed** (direction, 2026-09-04) — reframes the escalation model of [ADR-003](ADR-003-local-serial-cognition.md); ADR-003's serial spine and local-first stance stand.
+- Status: **proposed** (direction, 2026-09-04) — reframes the escalation model of [ADR-003](ADR-003-local-serial-cognition.md); ADR-003's serial spine and local-first stance stand. **First increment LANDED 2026-09-04** (fusion `feat/punt-escalation`, staged): see bottom.
 - Origin: Matt, driving. "Why are we punting at all… I'm thinking about one thing, not where to turn, not the lights — that's automatic. Iris needs to do that with the entire sensory fabric."
 - Date: 2026-09-04
 
@@ -80,3 +80,11 @@ retires the "deep tier on the voice hot path" tension (it always fit the web sur
 That alone stops the "give up and stall" behavior today (fusion `_proactive_punt_reason` +
 `neither_confident`/`CANNED_FALLBACK` → always the front door's best say). The full parallel/salience/
 deferred model lands incrementally after.
+
+## First increment — DONE (2026-09-04, staged)
+Landed in fusion (`feat/punt-escalation`, needs `sudo systemctl restart iris-fusion-executive`):
+- `_proactive_punt_reason`: **`self_uncertain` removed** — gate fires only on salience (affect / complexity).
+- `_synthesize` + `synthesis._select_say`: **voice any present say** (no confidence floor) — the front door never suppresses its immediate answer for a filler.
+- Fallback text: think-stall → honest retry-invite ("Sorry — that one got away from me. Say it again?"), fired ONLY on a genuinely empty front door. 41 fusion tests green.
+
+Still ahead (the real project): the **salience/attention mechanism**; **deferred/proactive** deep surfacing (wire deep-mode → Volition, off the voice hot path); **expand the automatic layer**.
