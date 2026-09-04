@@ -2,6 +2,7 @@
 - Buildable design (incremental migration, code-grounded): [`design/COGNITION-REARCH.md`](../design/COGNITION-REARCH.md)
 - Status: accepted (direction); **PARALLEL build with the web surface** (ADR-002 / ISSUE-008), coordinated by the shared text→fabric-bridge contract
 - Date: 2026-08-24
+- **2026-09-04 — the "punt"/escalation model here is REFRAMED by [ADR-004](ADR-004-automaticity-and-attention.md)**: "punt" was selector-thinking; it becomes a salience-gated *parallel* deliberation that refines (not replaces) and surfaces *deferred* (not same-turn barge-in). The serial-spine, local-first, and creative-retirement decisions below still stand.
 
 ## Context
 The two-cortex design — logical `qwen2.5:14b` + creative `gemma3:12b` — does not deliver the

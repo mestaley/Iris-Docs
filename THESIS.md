@@ -48,6 +48,14 @@ This is not always-on contention surfacing. It is *calibrated* contention surfac
 
 The pattern maps to a real cognitive science observation: human brains hold multiple processes in contention, and executive function decides which to surface rather than which one is "true." Iris modeling this is more architecturally honest than voice assistants modeling single-voice-per-turn.
 
+### Automaticity vs. attention: the sensory fabric is mostly subconscious
+
+_(Added 2026-09-04, from Matt driving — formalized in [ADR-004](decisions/ADR-004-automaticity-and-attention.md).)_
+
+Conscious attention is **singular and expensive**; automaticity is **parallel and cheap**. Driving, you think about one thing — not where to turn, not the lights; those are automatic. Iris must do this with the **entire sensory fabric**: the vast majority of it (presence, lighting, routine actuation, ambient state) is handled by fast, always-on, subconscious reflexes that **never reach cognition and never clutter the conscious prompt** — the cerebellum, not the cortex. Actions commit in this automatic layer, fast, and deliberation never un-commits them.
+
+Only the **one salient thing** rises to conscious deliberation. This reframes escalation: it is **not** "the fast model gave up" (a selector move the weaver thesis rejects) but "**this** is what deserves attention right now." Deliberation runs **in parallel** (speculative, discardable when it doesn't improve), is engaged **rarely**, **refines** rather than replaces, and — for in-the-moment voice — surfaces **deferred** ("been chewing on that…") rather than barging into the live turn. The hard, load-bearing problem this exposes is a genuine **salience/attention mechanism**, not a confidence threshold.
+
 ### Substrate: operates at two points in the pipeline
 
 Substrate is not located at one place in the architecture. It operates at two:
