@@ -50,3 +50,13 @@ the front door gave a one-line answer. Added `_wants_deliberation()` cue detecti
 analyze / compare / trends / what should I / …): punt when a turn ASKS for depth (>=8 words + cue)
 OR is a long question (>=22 + ?). Still a crude stand-in for the real attention mechanism (ADR-004),
 kept tight. Fusion `feat/punt-escalation`, +3 tests (suite 46). **Needs iris-fusion-executive restart.**
+
+---
+## FULL DEFERRED LOOP — VALIDATED END-TO-END, LIVE IN THE HOUSE (2026-09-06)
+turn-3f8702d7 ("deep dive the weekend weather"): punt fired (reason=complexity, new depth-cue) →
+front door answered immediately → deep-mode deliberated (deferred) + queued at 14:59:56 (fire_at
++60s) → arbiter delivered at 15:01:01 (~65s later) to vg-01 (kitchen) + vg-02 (basement, multicast)
+→ **fusion voiced it verbatim, cause=proactive**: a real day-by-day deep dive ("Matt — you asked for
+a deep dive… Sunday's your best bet… keep an umbrella handy for Saturday morning"). Matt heard it in
+the house ~1 min after asking. The whole ADR-004 arc (never-stall front door + salience gate +
+deferred surfacing + verbatim rail) is LIVE and working.
