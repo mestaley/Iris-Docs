@@ -88,3 +88,16 @@ Landed in fusion (`feat/punt-escalation`, needs `sudo systemctl restart iris-fus
 - Fallback text: think-stall → honest retry-invite ("Sorry — that one got away from me. Say it again?"), fired ONLY on a genuinely empty front door. 41 fusion tests green.
 
 Still ahead (the real project): the **salience/attention mechanism**; **deferred/proactive** deep surfacing (wire deep-mode → Volition, off the voice hot path); **expand the automatic layer**.
+
+## Refinement (2026-09-06) — offer, don't dump; and the Recall Queue
+The deferred deep-dive landed live and well ("Now that is what I've always wanted in a weather
+report" — Matt). Two refinements from that run, captured in [design/RECALL-QUEUE.md](../design/RECALL-QUEUE.md):
+- **Offer before deliver.** Don't auto-deliver the full ~30s analysis — Iris **offers** it and waits
+  for a yes ("I've got a deeper read on that — want it?"). The considered result is HELD; only a short
+  offer surfaces; delivery is on confirmation. Respects singular attention even when deferred.
+- **The Recall Queue** — a unified durable substrate for everything Iris is holding to surface/act on
+  later: deep-thoughts (age out), tasks/lists (persist), and research requests (dispatch to a bigger
+  local/cloud model, return as an offer). Generalizes the events queue. Each entry stores offer +
+  turn_id + context so a confirmation resolves to the held payload.
+- **Critical path:** (1) **true conversational follow-up without a wake word** (so "want it?" → "yeah"
+  works) and (2) **store the offer + context** in the queue. See the design doc for sequencing.
