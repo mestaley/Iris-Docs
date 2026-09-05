@@ -1,7 +1,8 @@
 # ISSUE-011: The proactive delivery rail is broken with creative retired
 
-- Status: open (found 2026-09-05 while wiring ADR-004 deferred surfacing) — **blocks deferred
-  deliberation delivery; also silently degrades welcome-home + briefing**
+- Status: **RESOLVED (built) 2026-09-06** — fusion now voices `proactive_brief` verbatim for system
+  turns (option 2). Staged; needs `sudo systemctl restart iris-fusion-executive`. Restores
+  welcome-home + briefing too. See Resolution below.
 - Severity: high (proactive speech — a whole feature class — doesn't voice its content)
 - Area: cognition / fusion-executive + curator + cortex (the proactive rail)
 
@@ -41,3 +42,13 @@ optionally (1) later for briefings that want in-character phrasing.
 - Also gated by `VOLITION_EVENTS_DRY_RUN=true` (delivery is dry-run) — separate flag, Matt's.
 - Interim: deep-mode `deferred_delivery=true` already STOPS the jarring barge-in (net win) even
   before this rail fix; deliberations just queue silently until the rail voices them.
+
+## Resolution (2026-09-06) — fusion `feat/punt-escalation`
+Went with **option 2** (verbatim). Fusion reads `proactive_brief` off `fs.trace` in
+`on_feature_stream` (the same trace it already reads `origin` from), stores it on `_TurnState`;
+`ready_to_fire` fires a system turn as soon as the brief is present (creative never comes); `_fire`
+bypasses the no-cortex-response return and sets `say = proactive_brief` verbatim (no synthesis/
+paraphrase — a considered deliberation must not be diluted); proactive turns are guarded from
+punting (loop guard). +2 tests, fusion suite 43 green. **Owed:** `sudo systemctl restart
+iris-fusion-executive`; then the deferred deliberation (and welcome-home/briefing) voices — after
+`VOLITION_EVENTS_DRY_RUN=false` for actual delivery.
