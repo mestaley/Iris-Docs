@@ -41,3 +41,12 @@ soon as the brief is present, and bypassing synthesis so a considered deliberati
 hard turn → deep-mode queues a deliberation (due +60s, non-holdable) → arbiter delivers at the next
 present tick → **fusion voices the brief verbatim** (validated). Restart iris-deep-mode, then a live
 end-to-end test WILL voice in the house ~1 min after a hard question.
+
+---
+## Salience gate refinement (2026-09-06) — from a live miss
+turn-e62f8bd4: Matt asked for a weather "deep dive… analyze it… look at trends" (52 words) — clearly
+deliberation-worthy, but phrased as a command (no "?"), so the complexity heuristic skipped it and
+the front door gave a one-line answer. Added `_wants_deliberation()` cue detection (deep dive /
+analyze / compare / trends / what should I / …): punt when a turn ASKS for depth (>=8 words + cue)
+OR is a long question (>=22 + ?). Still a crude stand-in for the real attention mechanism (ADR-004),
+kept tight. Fusion `feat/punt-escalation`, +3 tests (suite 46). **Needs iris-fusion-executive restart.**
