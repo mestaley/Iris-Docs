@@ -24,3 +24,20 @@ soon as the brief is present, and bypassing synthesis so a considered deliberati
 - Validate the rail live (publish a canned proactive brief → fusion voices it verbatim).
 - Then the full deferred loop: hard turn → deep queues deliberation → delivered later, voiced.
 - Origin pushes owed.
+
+---
+## Validation + deferred timing (2026-09-06)
+- **Rail fix VALIDATED LIVE**: published a canned proactive brief to a non-speaker node — fusion
+  fired immediately and voiced it **verbatim** (say == brief, strategy=logical_only_called). ISSUE-011
+  confirmed fixed.
+- **Events delivery is LIVE** — `/etc/iris-fabric/volition.env` already has `VOLITION_EVENTS_DRY_RUN=false`
+  (independent of the master `VOLITION_DRY_RUN=true`). So the only remaining gate was delivery *timing*.
+- **Deferred timing fixed** (deep-mode `feat/deep-mode`): the deliberation event was `holdable=True`,
+  which the arbiter BATCHES into the morning/arrival digest — wrong for "been chewing on that…". Now
+  non-holdable (its own turn at the next present tick) + `fire_at = now + 60s` so it lands a little
+  later, not instantly. Needs `sudo systemctl restart iris-deep-mode`.
+
+## Full deferred loop — now wired + live-ready
+hard turn → deep-mode queues a deliberation (due +60s, non-holdable) → arbiter delivers at the next
+present tick → **fusion voices the brief verbatim** (validated). Restart iris-deep-mode, then a live
+end-to-end test WILL voice in the house ~1 min after a hard question.
