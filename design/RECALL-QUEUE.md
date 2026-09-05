@@ -50,6 +50,44 @@ or the Claude / GPT APIs — and lands its result back in the recall queue as an
 heavy research. Async + offer-based, so latency never touches a live turn. (Local-first still holds:
 the cloud tier is opt-in per request, for depth the local silicon can't reach.)
 
+## Structural direction: pointers into memory, not a parallel store
+_(Matt, 2026-09-06: "I'm wondering if this recall queue is just an array of pointers to actual
+memory.")_ — likely yes, and it's the cleanest framing.
+
+The content Iris is holding **already lives in the substrate** (the deliberation turn, the task, the
+research result are all memories). So the recall queue is **an index of pointers into memory + a thin
+surfacing layer**, not a second content store. A queue entry is thin:
+
+```
+[ memory_id, kind, cue/trigger, offer_text, status, salience/aging ]
+```
+
+- **Cognitively this is prospective memory** — remembering to surface/do something later is not a
+  separate faculty; it's a memory item primed with a retrieval cue that re-activates it. Aligns with
+  the thesis (substrate is foundational; attention/salience is the mechanism over it).
+- **Aging falls out of memory decay** — no separate TTL logic. A **deep-thought** is a memory whose
+  salience decays below the surface threshold and drops off. A **task** is a memory *pinned* (no
+  decay) until resolved. A **research request** is a **placeholder memory that fills in** when the
+  bigger model returns. One mechanism — the substrate's affect-tagged salience/consolidation.
+- **Two decay rates — the recall queue ages out, the memory persists longer** (Matt, 2026-09-06:
+  "fast recall may age out, but those may stay in longer-term memory longer"). This is the existing
+  two-tier split: the **fast/active recall layer** ([[working-memory-field]] — RAM-resident, quick
+  half-life) holds the *primed-to-proactively-surface* pointers; they **age out of the active queue**
+  (Iris stops offering them), but the memory they point to **consolidates into long-term storage**
+  ([[iris-memory-consolidation-stack]], pgvector) and persists — still **retrievable on demand**
+  ("what was that weather analysis you did?"). So "ages out" ≠ deleted; it's **demotion from active/
+  proactive to passive/retrievable** — exactly prospective memory: you stop actively reminding
+  yourself, but you can still recall it if asked. Consolidation is the bridge: a salient active item
+  is written to long-term before its fast pointer decays.
+- **Keep two seams distinct:** *content* (memory — the what) vs. *surfacing* (the when/where/how — the
+  delivery arbiter + the offer/confirm loop). The queue = pointers for the content + a thin surfacing
+  layer above memory. Don't collapse them, or surfacing inherits memory's retrieval semantics for a
+  job that's really timing + attention.
+- **Caveats:** (1) pointing into memory means memory must be **solid** — the consolidated tier has
+  known holes ([[iris-thesis-recentering-2026-08]]); shore it up before leaning on it as the backing
+  store. (2) Denormalize a little — keep `offer_text` + `cue` on the pointer so surfacing doesn't
+  re-derive them from memory every tick.
+
 ## How it composes with what exists
 - **ADR-004 deferred surfacing** — change deep-mode's delivered event from the full brief to a short
   **offer**; hold the full analysis keyed by turn_id; deliver on confirm.
