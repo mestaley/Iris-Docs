@@ -31,3 +31,13 @@ Filed ISSUE-012 with the full plan incl. Phase 3 (offer-before-deliver, the reca
   → deliver. Depends on the recall-queue store.
 - Phase-2 refinements: half-duplex barge-in (ISSUE-009), long-session re-verification.
 - Origin pushes owed (now incl. iris-conditioning).
+
+---
+## Fix: early-stamp race (2026-09-10)
+Re-test showed Phase 1 fusion WORKED (Iris asked "which lights?" → fusion emitted `await-marker →
+vg-02`), but the window opened ~10s early: speech-output stamped `<node>.await` at question-START
+(16:13:33) not question-END (16:13:43), because the await marker races the reply utterance
+(different DDS topic) and the node still looked idle. Fix: speech-output always ARMS and stamps on
+the coming idle, never immediately (fusion always voices a say on an invite_reply turn). Deployed to
+audio-ai (`speech-output` restarted). Now the 18s window opens when Iris finishes asking.
+(Also observed: no ASR captured for the answer in that shortened window — re-test answering promptly.)
