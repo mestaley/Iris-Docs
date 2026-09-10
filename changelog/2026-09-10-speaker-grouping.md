@@ -50,6 +50,17 @@ feature-bit was unreliable in states; presence of the `group_members` attribute 
   iris-curator iris-cortex-logical iris-tool-registry`. Until then, voice "play X in the dining
   room and living room" won't reach the new grouping.
 
+## Correction (same day) — order bug: play-THEN-join
+First cut did join-then-play; symptom "music only plays out of the first speaker."
+Root cause found live: `music_assistant.play_media` returns **HTTP 500 when its target is
+already in a native Sonos group**, and even when it doesn't 500, only the leader plays.
+Working order is **play-then-join**: play on the leader alone, then join the members onto the
+LIVE leader — each inherits the leader's playing stream in sync (verified: member went
+idle → playing the leader's exact track, both grouped). Rewrote `play_on_speakers` (world-ai
+commit on `fix/actuation-settle-verify`): dissolve stale groups → play leader (self-heals a
+500 from a leftover group by unjoin+retry once, `PLAY_TIMEOUT_S=10s`) → settle → join members.
+**world-ai needs another restart** to pick this up.
+
 ## Follow-ups / owed
 - Origin pushes owed (automation can't push): world-ai `fix/actuation-settle-verify`,
   iris-fusion-fabric `feat/punt-escalation`.
