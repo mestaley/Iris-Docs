@@ -61,6 +61,21 @@ commit on `fix/actuation-settle-verify`): dissolve stale groups → play leader 
 500 from a leftover group by unjoin+retry once, `PLAY_TIMEOUT_S=10s`) → settle → join members.
 **world-ai needs another restart** to pick this up.
 
+## Correction 2 (same day) — group on BARE entities + poll-for-playing
+After the play-then-join fix, live testing surfaced two more: (a) `media_player.unjoin` on the
+**MA twin** returns 200 but does NOT dissolve the Sonos group (a wedged group stayed grouped →
+next `play_media` 500'd on the still-grouped target); grouping must target the **bare Sonos
+entities** (`media_player.dining_room`), MA twin only for the play. (b) A slow MA resolve made
+the code join a not-yet-live leader and the join timed out (bumped `HA_TIMEOUT_S` 4→8s), leaving
+the group unformed ("plays only on the first speaker") — added `_wait_playing` to poll the leader
+to `state==playing` before joining. Added `_bare_entity`/`MA_TO_SONOS_ENTITY`. Verified live via
+combo test AND the real `play_on_speakers` module call: returns success with the full group, both
+rooms play the same track in sync. world-ai commit 93ca541. **world-ai restart still owed.**
+
+**Observed, unrelated:** MA/Spotify **playback dropped out ~15s after starting** on several runs
+(plays + syncs correctly, then goes idle on its own) — an MA/Spotify resolve-layer flakiness, not
+grouping. Possibly the personal Spotify dev key / artist-radio queue. Worth watching.
+
 ## Follow-ups / owed
 - Origin pushes owed (automation can't push): world-ai `fix/actuation-settle-verify`,
   iris-fusion-fabric `feat/punt-escalation`.
