@@ -67,6 +67,7 @@ _Deduped against the issues + items above. Grouped by theme. The legacy files st
 - Air quality integration is broken (OpenAQ 401) — drop or replace the provider.
 
 ### Sensing / home-automation
+- **Speaker grouping / true sync** (Matt, 2026-09-10) — multi-speaker playback plays the same content INDEPENDENTLY (drift), not a real synced group. The media path fires per-entity `play_media` without grouping first. Fix: `media_player.join` the requested speakers to a coordinator (or MA group_members) BEFORE play, then play on the group; ungroup when done. Touches world-ai `spotify_service`/control_media + the fabric's multi-room intent. Blocked on Music Assistant playback working (MA Spotify provider re-auth).
 - HA WebSocket subscription instead of 30s polling (catches rapid button presses the poll misses).
 - Occupancy-driven display sleep for the ui-01 basement touchscreen (V1 via HA automation).
 
