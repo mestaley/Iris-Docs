@@ -79,3 +79,13 @@ network, credentials cache). Not a world-ai token (that path was nuked 2026-05-2
 - **iris-deep-mode** (core-ai) — 15s deferred delay.
 - **world-ai service** — Spotify slow-resolve optimistic-success + (already-applied) dead-config removal.
 - (audio-ai speech-output + intent-consumer already restarted by automation.)
+
+**Correction (same day):** the reflex-pending fix above was necessary but not the whole story.
+The live failures (turn-4f30f27 "basement lights on") had the reflex result ALREADY arrived
+success=True — actuated_ok WAS true — but `_should_confirm_actuation` also required
+`not failed_actuations`, and logical's double-fire duplicate (`control_device` with the bogus
+entity_id `light.basement` instead of `light.basement_lights`) no-op-failed in 0ms. That spurious
+failure blocked the "Done." ack → canned "got away" filler on a light that DID turn on. Real fix:
+dropped the `not failed_actuations` guard from the confirm path (a genuine failure has
+actuated_ok=False and is voiced as a correction upstream; when actuated_ok is True the co-present
+failures are double-fire no-ops). 57 tests green. **Still needs iris-fusion-executive restart.**
