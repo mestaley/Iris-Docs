@@ -47,3 +47,25 @@ re-auth, and there's a pending MA update). Matt confirmed the MA refactor.
 - **iris-deep-mode** — the 15s deferred delay (verify_failed-skip already restarted earlier).
 - (audio-ai speech-output + intent-consumer already deployed+restarted by automation. world-ai
   config cleanup needs no restart.)
+
+---
+## Spotify RESOLVED (2026-09-10) — MA re-auth worked; fixed the slow-resolve false-fail
+Matt re-authed Music Assistant's Spotify provider (with his OWN Spotify developer API key — MA's
+new requirement; cross-VLAN Connect pairing was the pain). **Confirmed playing** live:
+media_player.dining_room = "Frank Sinatra - Dancing In The Dark". Remaining bug: MA resolves a
+Spotify artist (search + queue) in >5s — longer than the fabric's ~5s tool budget — but plays ASYNC,
+so the fabric reported a false "couldn't get that playing" WHILE it played. Fixed world-ai
+`spotify_service.play_on_speaker`: 4s httpx timeout, treat a timeout as OPTIMISTIC SUCCESS (accepted;
+playback follows); a fast non-200 (auth/bad entity) still a real failure. Committed on world-ai
+`fix/actuation-settle-verify`. **Needs world-ai restart.**
+
+Doc note for future-me: MA's Spotify provider now needs YOUR OWN Spotify developer app key + a
+one-time Spotify Connect pairing (zeroconf/mDNS, L2-only — won't cross VLANs; pair once on the same
+network, credentials cache). Not a world-ai token (that path was nuked 2026-05-29).
+
+## Consolidated restarts owed (Matt sudo)
+- **iris-fusion-executive** (core-ai) — actuation false-fail suppression + "the that device" grammar
+  + media-play wording + no-wake-window `?`-fallback arming.
+- **iris-deep-mode** (core-ai) — 15s deferred delay.
+- **world-ai service** — Spotify slow-resolve optimistic-success + (already-applied) dead-config removal.
+- (audio-ai speech-output + intent-consumer already restarted by automation.)
