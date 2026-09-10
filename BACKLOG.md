@@ -30,7 +30,7 @@ Sources still in `/opt/repos/Architecture/`; the review triage is in that sessio
 - Task #29: fuse text valence (DistilBERT SST-2) into AffectInfo `source="fused"`.
 
 ## Watch (latent, not currently biting)
-- **Voice-node clock skew** — vg-02's clock ran ~90 min behind wall-clock, which silently broke every no-wake window (ISSUE-012, now worked around by timing windows in wall-clock). NTP-sync the Pi voice nodes; audit other node-timestamp_us-based logic for the same skew.
+- **Sync ALL nodes to the internal NTP server** (Matt, 2026-09-10) — vg-02's clock ran ~90 min behind wall-clock, which silently broke every no-wake window (ISSUE-012, now worked around by timing windows in wall-clock, but the skew likely bites other node-`timestamp_us` logic). Internal NTP = **infra-01.staley.home** (core hosts already sync to it). The Pi voice nodes (vg-01/02/03) reject the automation key, so this is a Matt/sudo task: per node — `sudo sed -i 's/^#*NTP=.*/NTP=infra-01.staley.home/' /etc/systemd/timesyncd.conf && sudo timedatectl set-ntp true && sudo systemctl restart systemd-timesyncd && timedatectl timesync-status` (or chrony equiv if the node uses chrony). Verify `date` matches wall-clock after.
 - `tool-registry control_device` schema advertises a `'data'` object but dispatch reads flat args (ARCHITECTURE.md:346). Actuation works today because the cortex sends flat args; would bite if a model followed the advertised schema. Reconcile the schema with dispatch.
 - Confirm the two `probably-dead` rows before deleting: grep `fusion-executive/.../service.py` for httpx/`recall_precedent` call sites; grep tool-registry for `current_weather` dispatch. Now doable — SSH to core-ai is live again.
 
