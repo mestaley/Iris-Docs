@@ -41,6 +41,16 @@ re-auth, and there's a pending MA update). Matt confirmed the MA refactor.
 - **fusion** `feat/punt-escalation`: media-play failures say "couldn't get that playing", not "reach
   the device" (a control_media/select_content fail isn't a device being unreachable). +1 test.
 
+---
+## Fix: "got away from me" on responsive actuations (2026-09-10)
+turn-9b7f6fab ("basement lights off"): the reflex turned them off (success=True) but the HA call
+took ~1.4s and the result arrived AFTER fusion decided (~3s), so actuated_ok=False -> the empty
+front door fell to the "Sorry - that one got away from me. Say it again?" fallback though the lights
+DID go off. Fix: a reflex device/media actuation whose result is still PENDING counts as actuated
+(optimistic; the reflex reliably dispatches, the async supervisor backstops - it logged "reflex
+CORRECT"). A reflex result that ARRIVED failed is NOT pending, so the genuine-failure correction
+still voices. fusion `feat/punt-escalation`, +1 test, 56 green. **Needs iris-fusion-executive restart.**
+
 ## Consolidated restarts owed (Matt sudo)
 - **iris-fusion-executive** — actuation false-fail suppression + "the that device" grammar +
   media-play wording + the no-wake-window `?`-fallback arming.
