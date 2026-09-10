@@ -27,3 +27,23 @@ Matt: the deferred deep-thought "takes too long to be useful, I don't understand
 = offer-before-deliver (recall-queue Phase 3, ISSUE-012): Iris OFFERS ("deeper read — want it?") and
 delivers on confirm, instead of a mysterious late monologue. Now feasible (Phase 1 arms the no-wake
 window for offers). Sequenced next.
+
+---
+## Spotify "502" diagnosis + cleanups (2026-09-10)
+turn-1924965e Frank Sinatra failure traced: world-ai `/spotify/play` → HA
+`music_assistant/play_media` → **HA returns 500** → world-ai returns 502 (its own design)
+→ fabric said "can't reach it". Reproduced live (HA 500). NOT a world-ai Spotify token — that
+path was **nuked for Music Assistant 2026-05-29** (the `spotify_*` config vars were dead/misleading).
+The real failure is in **HA/Music Assistant's play_media** (Matt to check: MA Spotify provider
+re-auth, and there's a pending MA update). Matt confirmed the MA refactor.
+- **world-ai** `app/config.py` (branch fix/actuation-settle-verify): removed dead `spotify_client_id/
+  secret/refresh_token`. No restart needed (unused).
+- **fusion** `feat/punt-escalation`: media-play failures say "couldn't get that playing", not "reach
+  the device" (a control_media/select_content fail isn't a device being unreachable). +1 test.
+
+## Consolidated restarts owed (Matt sudo)
+- **iris-fusion-executive** — actuation false-fail suppression + "the that device" grammar +
+  media-play wording + the no-wake-window `?`-fallback arming.
+- **iris-deep-mode** — the 15s deferred delay (verify_failed-skip already restarted earlier).
+- (audio-ai speech-output + intent-consumer already deployed+restarted by automation. world-ai
+  config cleanup needs no restart.)
