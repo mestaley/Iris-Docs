@@ -43,6 +43,10 @@ feature-bit was unreliable in states; presence of the `group_members` attribute 
   `entity_ids` to `/spotify/play`; returns `group`.
 
 ## Deploy / live state
+- **LIVE + VERIFIED END-TO-END (2026-09-10→11)**: two-room synced playback confirmed by ear via
+  the `/spotify/play` endpoint (both rooms, same track, one group), AND the **voice path works** —
+  Matt confirmed a spoken multi-room command grouped + played in sync. All services restarted
+  (world-ai + curator/cortex-logical/tool-registry). Feature complete.
 - **LIVE**: world-ai grouped-playback capability (service restarted). Testable now:
   `curl -XPOST localhost:8001/spotify/play -d '{"query":"Frank Sinatra","content_type":"artist",
   "entity_ids":["media_player.dining_room","media_player.living_room"]}'`.
