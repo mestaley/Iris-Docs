@@ -150,3 +150,20 @@ QEMU for the incoming VM), then live-migrate bastion (session survives); full up
 schedule a reboot window (whole-Iris outage, everything's on pve-03). (b) `qm set 200 --machine
 pc-q35-10.0` + offline migrate (session dies). (c) leave bastion on pve-01, retire later.
 **pve-01 retirement is blocked until bastion moves.** net-tools (110) is abandoned with pve-01.
+
+---
+## ✅ MIGRATION COMPLETE — 2026-09-28 (pve-01 drained)
+After Matt updated pve-03 (→ pve-manager 9.2.20 / QEMU 11.0.3), **bastion LIVE-migrated to pve-03 —
+the driving Claude session survived the switchover.** Final layout, Iris healthy (fabric target
+active, 0 failed units; voice TTS 200; DNS ok; pve-03 54G/67G used):
+- **pve-02**: memory-ai (105), voice-ai (205, 5060 Ti)
+- **pve-03**: core-ai1 (201, 2×5080), audio-ai (202), world-ai (210, no GPU), + parked infra:
+  infra-01 (111, DNS/NTP), monitor-01 (112), bastion (200)
+- **pve-01**: only net-tools (110, stopped) — abandon it.
+
+### Remaining (Matt, physical):
+1. Power down pve-01; move its RAM DIMMs → pve-02 (→ ≥48G); pull the 5060 Ti (cold spare).
+2. `pvecm delnode pve-01` (from pve-02/pve-03); optionally `rm -rf /etc/pve/nodes/pve-01`.
+3. AFTER pve-02 RAM upgrade — rebalance parked infra pve-03→pve-02 (lightens pve-03):
+   `qm migrate 200 pve-02; pct migrate 111 pve-02 --restart 1; pct migrate 112 pve-02 --restart 1`
+   (bastion 200 is now QEMU-11 machine-typed; pve-02 must be on QEMU 11 too — verify before live-migrate.)
