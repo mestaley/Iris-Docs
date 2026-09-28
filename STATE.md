@@ -107,18 +107,27 @@ the same contract (architecture-is-sovereign). Design docs: `design/WEB-SURFACE.
 Plus the ADR-001 cleanup still in flight (re-enroll voiceprint, eval-backed multi-intent redo,
 ISSUE-004/006 pruning + honesty). Deferred doc merges queued.
 
-## Hosts
-| Host | Role | Mgmt |
-|---|---|---|
-| core-ai | Fabric services | systemd `iris-*.service` (interactive sudo) |
-| audio-ai | Conditioning consumers | docker (matt in docker group, sudoless) |
-| world-ai | Sensors, Meridian, HA proxy | systemd `world-ai*.service` |
-| voice-ai (pve-01) | STT / TTS + GPU | — |
-| bastion-01 | Where Claude runs; iris-docs lives here | — |
+## Hosts (consolidated to 2 active nodes 2026-09-28 — pve-01 retiring)
+| Host | Role | Node | Mgmt |
+|---|---|---|---|
+| core-ai | Fabric services (2× RTX 5080) | pve-03 | systemd `iris-*.service` (interactive sudo) |
+| audio-ai | Conditioning consumers | pve-03 | docker (matt in docker group, sudoless) |
+| world-ai | Sensors, Meridian, HA proxy (**no GPU** — reflex retired) | pve-03 | systemd `world-ai*.service` |
+| voice-ai | STT / TTS + GPU (RTX 5060 Ti) | **pve-02** (was pve-01) | — |
+| infra-01 | Pi-hole DNS + chrony NTP | pve-03 (was pve-01) | LXC |
+| monitor-01 | Loki / Grafana | pve-03 (was pve-01) | LXC |
+| bastion-01 | Where Claude runs; iris-docs lives here | pve-03 (was pve-01) | — |
+| memory-ai | pgvector / storage | pve-02 | — |
 
-## Live fabric services (core-ai, verified 2026-08-22)
-`iris-fabric.target` active. Running: chunk-store, cortex-creative, cortex-logical,
-curator, dream-mode, episode-buffer, fusion-executive, memory-substrate (+http),
+**pve-01: retiring** (only net-tools left, stopped). Physical: RAM → pve-02, 5060 Ti → spare, `pvecm delnode`.
+Parked infra (bastion/infra-01/monitor-01) on pve-03 → rebalance to pve-02 after its RAM upgrade.
+No shared storage; migrations are `qm/pct migrate` (ZFS send). See `design/HOST-CONSOLIDATION*.md`.
+
+## Live fabric services (core-ai)
+`iris-fabric.target` active. **cortex-creative RETIRED** (2026-09-28, authoritative — fusion ignores it).
+The **fast-path reflex is DISABLED** (`CURATOR_FASTPATH_ENABLED=false`; world-ai GPU-less) — cortex-logical
+is the **sole actuator** (silent on completed actuation, spoken correction on failure). Running: chunk-store,
+cortex-logical, curator, dream-mode, episode-buffer, fusion-executive, memory-substrate (+http),
 reflection-coordinator, thalamus, tool-registry, volition.
 
 ## Subsystem status (live-verified)
