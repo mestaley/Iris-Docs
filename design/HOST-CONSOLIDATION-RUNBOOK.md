@@ -22,7 +22,8 @@ Legend: ⚙ = physical/Matt · ▶ = software (Claude or Matt) · ✓ = verify
   rebuild net/disk/passthrough exactly). Claude can dump these now.
 - ✓ Confirm audio-ai (202) + core-ai (201) untouched on pve-03 the whole time (they don't move).
 
-## Phase 1 — world-ai off its GPU, onto pve-03 (frees pve-02's 5060 Ti)
+## Phase 1 — world-ai off its GPU, onto pve-03 (frees pve-02's 5060 Ti)  ✅ DONE 2026-09-28
+> world-ai migrated pve-02→pve-03 (offline, `--targetstorage local-zfs`), hostpci0 removed, running GPU-less on pve-03 (IP 172.16.10.21, HA proxy/sensors/API verified). pve-02's 5060 Ti freed for voice-ai. ollama runs on CPU ~<1s (reflex still functional). Iris fully operational.
 1. ⚙/▶ **Retire world-ai's reflex GPU**: stop `ollama` on world-ai; `qm set 210 --delete hostpci0`
    (removes the 5060 Ti). Reflex now errors → curator falls through to cortex-logical (Iris still
    actuates, ~2-3s, silent). *No fabric code change needed.*
