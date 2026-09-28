@@ -52,9 +52,15 @@ live code, Core-Substrate-as-history. One flag for Matt: the Davis soft-vs-hard 
   scoping the world-ai fast reflex to `category=='actuation'` (device control only, no task/reminder
   CRUD) — confirmed `actuation_tools()` = control_device/control_media/select_content. Suite 19/19.
 - **Voice-managed tasks LIVE** (add + read, grounded) — web-surface P1 first capability.
-- **Creative cortex RETIRED 2026-08-25** (migration step 2, `FUSION_EXECUTIVE_ENABLE_CREATIVE=false`
-  + cortex-creative stopped): logical owns the grounded voice → ISSUE-005 confabulation dead at the
-  root ("weather report so much better", Matt). GPU1 freed for the deep MoE tier (step 4, next).
+- **Creative cortex retirement — HALF-DONE Aug 25, made authoritative 2026-09-28.** The Aug-25
+  step only set `FUSION_EXECUTIVE_ENABLE_CREATIVE=false` (which gates `ready_to_fire`, NOT synthesis)
+  and **never stopped cortex-creative** — so the service kept running, its response still arrived, and
+  `_fire`/`_synthesize` kept picking it (`creative_dominant`). Creative was the LIVE voice on every
+  turn through 2026-09-28 (the persistent "leads with Right" tic + actuation chatter). Fix: `_fire`
+  now IGNORES creative when the flag is off (fusion `feat/punt-escalation`, 2026-09-28) → logical owns
+  the grounded voice for real. **Staged: restart iris-fusion-executive; then stop+disable
+  cortex-creative to free GPU1 for the deep MoE tier.** With silent-on-clean-actuation, pure reflex
+  commands now go silent (the supervisor is the sole correctness voice — Matt's model).
   Tradeoff: first-audio ~0.2s→~2.5-3s (no logical streaming yet — backlogged). Reversible via the flag.
 - **Deep tier (qwen3-deep, 30B-A3B instruct) PROVEN LIVE 2026-08-25** — deliberates on grounded context, barges in over the front-door answer (~13s). GPU1. Still fires only on MANUAL punts (proactive punt signals = step 5). See changelog.
 - **Shadow-punt measuring** (step 1). Surprise finding: no-streaming *feels faster* → perceived latency

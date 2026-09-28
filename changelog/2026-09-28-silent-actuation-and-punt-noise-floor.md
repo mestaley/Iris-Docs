@@ -37,6 +37,24 @@ This supersedes the earlier synchronous-voicing fixes (the "Done." ack + got-awa
 - Access note: the SSH agent had dropped over the multi-day gap (passphrase-encrypted internal key,
   no agent) — Matt reloaded it (`ssh-add`), connectivity restored. No code impact.
 
+## MAJOR discovery: creative was never actually retired (fixed 2026-09-28)
+Tracing the first light commands after the restart showed **every turn `creative_dominant`,
+`creative_conf=0.95`** — cortex-creative is alive and voicing ("Right you are. Getting the basement
+lights."), despite ISSUE-011/012 + memory claiming it retired Aug 25. Root cause: the Aug-25
+"retirement" only set `ENABLE_CREATIVE=false`, which gates `ready_to_fire` but **not synthesis** —
+the service kept running, its response still arrived, and `_fire`/`_synthesize` still picked it
+(creative voice bias). So retirement never took: creative was the live voice on every turn (the
+persistent "leads with Right" tic + actuation chatter), and the silent-actuation change above was
+**inert** (turns were never `neither_confident`).
+- `fusion-executive/src/fusion_executive/service.py` — **changed**: `_fire` now ignores any creative
+  response when `ENABLE_CREATIVE` is off, so a still-running / accidentally-restarted creative can't
+  win the voice via synthesis. Retirement is now authoritative from fusion's side. +1 test.
+- **Action for Matt:** `sudo systemctl restart iris-fusion-executive` activates the fix (creative
+  ignored → logical is the voice → clean actuations go silent). Then, to actually free GPU1 for the
+  deep tier: `sudo systemctl stop iris-cortex-creative && sudo systemctl disable iris-cortex-creative`
+  (the code fix means the voice is fixed even before this; stopping it is for the GPU/deep-tier).
+- Docs corrected: ISSUE-011 (see its 2026-09-28 note); memory updated.
+
 ## Behavior change to watch
 - Genuine reflex-failure correction now depends entirely on the **async supervisor** (cortex-logical
   judge, which receives the failed result in the SuperviseRequest) — there's no deterministic

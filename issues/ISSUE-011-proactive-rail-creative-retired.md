@@ -52,3 +52,14 @@ paraphrase — a considered deliberation must not be diluted); proactive turns a
 punting (loop guard). +2 tests, fusion suite 43 green. **Owed:** `sudo systemctl restart
 iris-fusion-executive`; then the deferred deliberation (and welcome-home/briefing) voices — after
 `VOLITION_EVENTS_DRY_RUN=false` for actual delivery.
+
+---
+## 2026-09-28 — creative was never actually retired (correction)
+This issue (and ISSUE-012, and STATE) assumed creative was retired Aug 25. It wasn't: the Aug-25
+step set `ENABLE_CREATIVE=false` but that only gates `ready_to_fire`, not synthesis, and
+cortex-creative was never stopped. So creative kept responding and `_fire` kept picking it
+(`creative_dominant`) — creative was the live voice on every turn through 2026-09-28. Fixed then:
+`_fire` now ignores creative when the flag is off (fusion `feat/punt-escalation`). Note this means
+the ISSUE-011 "proactive rail broke because creative retired" framing was only half-right — the rail
+fix (voice `proactive_brief` verbatim) is still correct and needed, but the trigger wasn't a real
+retirement. Restart iris-fusion-executive to activate; stop+disable cortex-creative to free GPU1.
