@@ -61,6 +61,28 @@ persistent "leads with Right" tic + actuation chatter), and the silent-actuation
   synchronous net anymore. If a real failure ever goes uncorrected/silent, that's a supervisor-prompt
   reliability issue (cortex-logical), not fusion.
 
+## Post-restart trace (validated) + light-status hallucination
+After the fusion restart + `stop iris-cortex-creative`: **creative is inactive**, and pure commands
+("basement lights off", "to 25%") now go `neither_confident` → **`silent (reflex actuation, supervisor
+owns correctness)`** with the supervisor logging `reflex CORRECT`. The model is live and working.
+
+Tracing status *questions* surfaced a two-bug hallucination (turn-49f10037 "are the kitchen lights on
+or not"): (1) the reflex fired `control_device(turn_on)` — **asking toggled the lights on**; (2) logical
+answered "The kitchen lights are off" from nothing — its `get_entity_state` call returned AFTER it had
+already committed (cortex query-tool results are dropped) and ambient had NO light state.
+- `curator/src/curator/fastpath.py` — **changed** (Fix A): `_is_status_query()` pre-gate; `reflex_actuate`
+  skips (no model call, no fire) when the text asks ABOUT state, so asking never toggles. Word-boundary
+  command detection so "turned on" ≠ the "turn" command verb; polite "can you turn…?" still actuates.
+- `curator/tests/test_fastpath.py` — **changed**: +2 tests; un-staled the actuation-tools set assertion
+  (flagged: reflex is offered set_reminder/mute — a mis-route risk, review later). **Needs iris-curator restart.**
+
+**Fix B (light-status grounding) — deferred to next increment, per Matt's principle:** *"the only
+prefetched data should be external APIs, and only slowly-changing things like weather."* So the fix is
+NOT to prefetch device state — it's to make cortex query-tool results **flow back** (a synthesis pass
+that waits for + incorporates `get_entity_state`) so logical answers fast state from live truth, and to
+STRIP any fast-state prefetch that exists. Recorded as memory `iris-prefetch-only-slow-external`. This
+is a real cortex-logical change (the query-loop), scoped as the next step.
+
 ## Follow-ups / owed
 - Restart above.
 - ISSUE-013 status: **A (latency) — resolved by silent-actuation** (no speech = nothing to wait on);
