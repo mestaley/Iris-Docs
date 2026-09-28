@@ -30,9 +30,19 @@
    immediate commands. `feat/punt-escalation` (volition reminders.py/intake.py, curator tool_catalog.py),
    +2 tests, 26 green. **Needs iris-volition + iris-curator restart.**
 
+## RESOLVED 2026-09-28 (see changelog 2026-09-28-silent-actuation-and-punt-noise-floor)
+- **A (latency)** — resolved not by a short-circuit but by the deeper fix: fusion now stays SILENT on
+  a clean reflex actuation (the async supervisor is the sole correctness voice), so a successful
+  "turn off the lights" produces NO speech — there's nothing to wait ~4.5s on. Also deletes the
+  got-away / can't-reach-it / "Done." bug class at the root.
+- **C (deep-punt on noise)** — done: affect-punt now requires ≥4 content words.
+- **B (ASR min-content guard)** — DROPPED as unsafe: the noise rides the follow-up/await windows,
+  where short answers ("yeah", "six") are legitimate; a blanket drop would kill real follow-ups.
+- **D (backyard-light mapping)** — still open (spot-check).
+
 ## OPEN — ranked by impact
 
-### A. Latency (the dominant felt problem) — RECOMMENDED NEXT
+### A. Latency (the dominant felt problem) — RESOLVED via silent-actuation (see above)
 cortex-logical's two-pass native-tools flow (chat_with_tools → wrap_final) on qwen2.5:14b is ~70% of
 the ~4.6s p50. The reflex actuates in ~800ms, but Iris's SPOKEN "Done." waits the full fusion decision.
 Proposed fixes (scope, not yet built):
