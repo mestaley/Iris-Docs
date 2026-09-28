@@ -91,3 +91,16 @@ Legend: ⚙ = physical/Matt · ▶ = software (Claude or Matt) · ✓ = verify
   trim), now that it's already degraded.
 - Path 2: cortex-logical as sole actuator + live-state query loop (the light-status grounding fix).
 - Owed origin pushes (fusion `feat/punt-escalation`, world-ai, iris-docs) + staged restarts.
+
+---
+## ⚠ Phase 1 fallout — the reflex was load-bearing (2026-09-28)
+Removing world-ai's GPU killed the reflex (CPU tool-gen > 5s curator budget → timeout),
+which **exposed that cortex-logical's `control_device` is malformed** (`{entity_id, state}`,
+no domain/service) and has always failed 0ms — the reflex was masking it. Actuation broke
+("can't reach the device", though HA is reachable). So the migration **forced the
+sole-actuator transition** (it was NOT a no-op as first assumed). Fixed same day:
+- tool-registry: normalize logical's `state→service`. fusion: silence on any completed
+  actuation (not just reflex), voice failures synchronously. curator `.env`:
+  `CURATOR_FASTPATH_ENABLED=false` (disable the dead reflex).
+- **Restarts required: iris-tool-registry, iris-fusion-executive, iris-curator.**
+- Lesson for the rest of the migration: the reflex is gone; logical is the sole actuator.
