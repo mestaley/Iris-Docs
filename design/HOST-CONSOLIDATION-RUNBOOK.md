@@ -65,7 +65,14 @@ Legend: ⚙ = physical/Matt · ▶ = software (Claude or Matt) · ✓ = verify
     + Grafana resume (do this move LAST; monitoring is blind during it — keep a scratch `journalctl` tail).
     ✓ infra-01 / net-tools: their services (internal NTP, etc.) back.
 
-## Phase 5 — retire pve-01
+> **bastion (200) goes LAST — it hosts the live Claude Code session driving this migration.** Migrating
+> bastion (or powering down pve-01 for the RAM pull) kills the session, and it does not auto-resume. So
+> Claude drives Phases 1–4 (world-ai, voice-ai, infra LXCs) while alive, verifying each; then Matt does
+> the bastion cutover + RAM swap + pve-01 retirement (Phase 5) solo, and **starts a fresh Claude session
+> on the relocated bastion** — it reads this runbook + HOST-CONSOLIDATION.md to verify the end state and
+> resume the code work (reflex cleanup, Path 2).
+
+## Phase 5 — retire pve-01 (Matt solo; Claude session is down)
 14. ⚙ Confirm every VM accounted for on pve-02/pve-03 and healthy for a full turn cycle + a proactive
     (welcome/briefing) + a light command + a status query.
 15. ⚙ Remove pve-01 from the cluster: `pvecm delnode pve-01` (from a surviving node), clean
