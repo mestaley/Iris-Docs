@@ -105,3 +105,35 @@ sole-actuator transition** (it was NOT a no-op as first assumed). Fixed same day
   `CURATOR_FASTPATH_ENABLED=false` (disable the dead reflex).
 - **Restarts required: iris-tool-registry, iris-fusion-executive, iris-curator.**
 - Lesson for the rest of the migration: the reflex is gone; logical is the sole actuator.
+
+---
+## Phase 4 progress + Phase 5 bastion commands (Matt runs these) — 2026-09-28
+Migrated to pve-03 (parked; rebalance to pve-02 after the RAM upgrade): infra-01 (111, Pi-hole
+DNS + chrony NTP — ~15s DNS blip), monitor-01 (112, ~1m43s). **net-tools (110) is NOT migrated —
+abandon it with pve-01.** pve-01 now holds only **bastion (200)** + net-tools.
+
+### Bastion (200 → pve-03) — run NOT through bastion (use the Proxmox web UI, or a shell on pve-01/pve-03 directly; bastion is the SSH jump host)
+bastion has no GPU → LIVE migration works and should keep the Claude session alive:
+```
+qm migrate 200 pve-03 --online --with-local-disks      # live; sub-second pause, session survives
+```
+Fallback if online is refused (kills the Claude session — fine, work is done):
+```
+qm stop 200 && qm migrate 200 pve-03 && qm start 200
+```
+(Web UI: select VM 200 → Migrate → target pve-03 → it picks online+local-disks automatically.)
+
+### Retire pve-01
+```
+qm list                     # on pve-01: should show only 110 (net-tools, stopped)
+# power off pve-01; move its RAM DIMMs into pve-02 (target >=48G); pull the 5060 Ti (cold spare)
+pvecm delnode pve-01        # from pve-02 or pve-03
+# (optional) rm -rf /etc/pve/nodes/pve-01   # only after delnode, from a surviving node
+```
+
+### After pve-01 gone + pve-02 RAM upgraded — rebalance infra to pve-02 (fresh session, optional)
+```
+qm migrate 200 pve-02                  # bastion
+pct migrate 111 pve-02 --restart 1     # infra-01 (brief DNS blip)
+pct migrate 112 pve-02 --restart 1     # monitor-01 (brief monitoring blip)
+```
