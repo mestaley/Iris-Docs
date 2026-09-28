@@ -137,3 +137,16 @@ qm migrate 200 pve-02                  # bastion
 pct migrate 111 pve-02 --restart 1     # infra-01 (brief DNS blip)
 pct migrate 112 pve-02 --restart 1     # monitor-01 (brief monitoring blip)
 ```
+
+---
+## ⛔ BLOCKER (2026-09-28): bastion can't move — pve-03 QEMU behind
+Migrated OK: world-ai→pve-03, voice-ai→pve-02, infra-01→pve-03, monitor-01→pve-03. **bastion (200)
+blocked**: live-migrate failed — `[pve-03] QEMU 10.1.2 too old for machine type pc-q35-11.0`.
+Versions: **pve-01 = pve-manager 9.1.11 / QEMU 11.0.0** (kernel 7.0.2); **pve-03 = 9.1.9 / QEMU 10.1.2**
+(kernel 6.17.2). bastion (born on pve-01) is pinned pc-q35-11.0 → won't run on pve-03 (live OR offline).
+world-ai/voice-ai migrated fine (older/compatible machine types). Bastion is still running on pve-01.
+**Fix options:** (a) update pve-03's `pve-qemu-kvm` to 11 (no reboot needed — target starts fresh
+QEMU for the incoming VM), then live-migrate bastion (session survives); full update incl. kernel →
+schedule a reboot window (whole-Iris outage, everything's on pve-03). (b) `qm set 200 --machine
+pc-q35-10.0` + offline migrate (session dies). (c) leave bastion on pve-01, retire later.
+**pve-01 retirement is blocked until bastion moves.** net-tools (110) is abandoned with pve-01.
