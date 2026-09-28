@@ -9,9 +9,10 @@ Retire **pve-01**. Consolidate onto **pve-02** (storage + infra + memory) and **
 Redistribute pve-01's RAM to the survivors.
 
 ## Current inventory (2026-09-28, from cluster)
-Cluster of 3 (pve-01/02/03). **No shared storage** — each node is local-ZFS (`local-zfs`; the
-`memory-data` 7.27T + `rpool-zfs` pools are `nodes pve-02` only). ⇒ **no live migration; moves are
-offline** (stop → vzdump/`zfs send` → restore), brief downtime per VM.
+Cluster of 3 (pve-01/02/03). **Not a single shared pool**, but every node has the same-named `local-zfs` (rpool/data) and it's a
+cluster ⇒ **`qm migrate` transfers disks via ZFS send** (straightforward, one command). GPU-passthrough
+VMs migrate OFFLINE (hostpci blocks live) — brief downtime. `memory-data` 7.27T + `rpool-zfs` are
+`nodes pve-02`-pinned, so world-ai (disk on `rpool-zfs`) needs `--targetstorage local-zfs` to move.
 
 | node | cores | RAM | NVIDIA GPU | VMs (vmid, mem) |
 |---|---|---|---|---|
