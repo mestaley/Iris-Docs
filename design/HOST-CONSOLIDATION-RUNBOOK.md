@@ -51,7 +51,8 @@ Legend: ⚙ = physical/Matt · ▶ = software (Claude or Matt) · ✓ = verify
 8. ✓ pve-02 posts with the new RAM; `free -g` shows the upgrade; existing VMs (memory-ai, world-ai
    already moved off) healthy.
 
-## Phase 3 — voice-ai onto pve-02 with the freed GPU
+## Phase 3 — voice-ai onto pve-02 with the freed GPU  ✅ DONE 2026-09-28
+> voice-ai migrated pve-01→pve-02 (offline, 71.5G ZFS send), re-attached the freed 5060 Ti (@01:00), running: GPU bound (~6.9G models loaded), IP unchanged 172.16.10.15, Kokoro TTS :8880=200 reachable from audio-ai, STT :10300 up. **No RAM upgrade was needed** (world-ai vacating pve-02 freed the 8G).
 9. ⚙ Confirm pve-02's 5060 Ti (01:00) is free (world-ai released it in Phase 1) and IOMMU-isolated.
 10. ▶ **Move voice-ai (205) → pve-02**: `qm set 205 --delete hostpci0` (drop pve-01's GPU ref) →
     `qm migrate 205 pve-02` (disk already on `local-zfs`, ZFS-sends) → on pve-02 attach the freed
