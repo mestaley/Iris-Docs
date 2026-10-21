@@ -32,6 +32,19 @@ first and everything else inherits the foundations.
 - A toy — she controls real lights, plays real music, knows the family's actual schedule, and is used daily.
 - A Home Assistant voice skin or Rhasspy frontend — she's a cognitive architecture (see ARCHITECTURE.md).
 
+## Safety invariants (never violate)
+
+Hard constraints on what Iris may touch, independent of any model/prompt/mapping. Enforced in
+code, not by prompt instruction — a model can be wrong, so the wall is below the model.
+
+- **The `lock` domain is off-limits — never actuate, never read.** The only HA lock is the z-wave
+  deadbolt, present solely for the UniFi doorbell fingerprint→unlock automation (HA-internal, HA's
+  own token). Iris must never unlock the door nor read the lock's state. Enforced at world-ai's
+  `/ha/service` proxy (`config.blocked_domains`, default `lock`) — the single holder of the HA
+  token and the chokepoint every actuation funnels through, so nothing in the fabric can bypass it.
+  Corollary: **never seed a `lock.*` entity into `iris_mappings` or `iris_tools`.** A broad reseed
+  from HA states must exclude the blocked domains, or Iris regains a path to the door.
+
 ## Working principles
 
 Methodological commitments that shape every decision. Not features — how the project is built.
