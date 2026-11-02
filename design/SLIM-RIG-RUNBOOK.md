@@ -77,14 +77,16 @@ for audio** (left installed on core-ai; harmless, reusable).
   Only the 2×5080 + 4080 are sold; both 5060 Ti stay.
 - [x] Qdrant → localhost (curator repointed; memory-ai retired).
 
-## Phase 6 — validate, then the irreversible step
-- [ ] Soak ~1 day across real turns.
-- [ ] **THEN sell** the 2× 5080 + 4080 (already shelved). Keep until here for rollback.
+## Phase 6 — DONE (irreversible step taken)
+- [x] **Surplus GPUs (2× 5080 + 4080) SOLD** (~mid-Oct 2026, per Matt 2026-11-02). No hardware rollback
+  remains — the rig is permanently **2× 5060 Ti**. The clean-sheet confirms 16GB-class is sufficient at
+  1–2 users, so nothing was left on the table. **Consequence:** the deployed brain + configs are now the
+  ONLY copy — backing them up / pushing to origin is no longer optional (no re-seat fallback).
 
-## Rollback (any time before Phase 6)
-Re-point the audio consumers back to voice-ai, re-start the voice-ai STT/TTS, flip cortex model back,
-re-point curator Qdrant. All config; data backed up in Phase 0. (The 5080s/4080 on the shelf are the
-hardware rollback for the sell gate.)
+## Rollback (config-only; hardware rollback no longer exists)
+Re-point the audio consumers back to voice-ai (if still up), flip cortex model back, re-point Qdrant.
+Config only; data backed up in Phase 0. The GPUs are sold, so there is no hardware rollback — protect
+the deployed code accordingly.
 
 ## Safety invariant — carry across the rebuild
 - **`lock` domain stays blocked.** world-ai `fix/block-lock-domain` (commit f848fe0) hard-blocks the
