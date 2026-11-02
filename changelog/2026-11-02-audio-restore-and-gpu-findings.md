@@ -15,10 +15,18 @@ is now pure surplus, and voice-ai is ready to retire.
 
 ## Changes by repo
 ### iris-conditioning (LIVE on audio-ai, `/opt/iris-conditioning/docker-compose.yml` — not a git commit; VM-local compose)
-- `docker-compose.yml` — **changed**: `asr-consumer.WHISPER_HOST` `voice-ai.staley.home` → `iris-stt`;
-  `router-consumer.TTS_URL` → `http://kokoro-tts:8880/v1/audio/speech`; `speech-output.KOKORO_URL` →
-  `http://kokoro-tts:8880`. Recreated the three containers (`--no-deps`). Timestamped backups alongside.
+- `docker-compose.yml` — **changed**: `asr-consumer.WHISPER_HOST` `voice-ai.staley.home` → `iris-stt`
+  (asr-consumer is a mesh container → compose alias resolves);
+  `router-consumer.TTS_URL` → `http://127.0.0.1:8880/v1/audio/speech`; `speech-output.KOKORO_URL` →
+  `http://127.0.0.1:8880`. Recreated the containers (`--no-deps`). Timestamped backups alongside.
   Fixes STT/TTS both pointing at the retired voice-ai host (ConnectionRefused).
+  **IMPORTANT:** `router-consumer` + `speech-output` are `network_mode: host` → they CANNOT resolve the
+  `kokoro-tts` compose alias; kokoro publishes :8880 on the host, so host-net consumers must use
+  `127.0.0.1:8880` (first attempt used the alias → `httpx.ConnectError: name resolution` in speech-output).
+- **End-to-end verified** via a live turn (turn-af9c691a, "what time is it"): STT transcribed, the fabric
+  produced the correct reply ("The current time … is 10:30 AM", conf 1.00, speech dispatched to vg-01).
+  The brain was never the problem — only the TTS leg, now fixed. (Cold-start cortex pass1 was ~7.9s on
+  the first turn after restart; the second call was 668ms — model warm-up, not a persistent regression.)
 
 ### iris-docs — branch `main`
 - `design/SLIM-RIG-RUNBOOK.md` — **changed**: target table → 2× 5060 Ti (GPU0 LLM / GPU1 surplus);
