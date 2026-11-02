@@ -30,3 +30,5 @@ the file and record the fix + commit.
 - ISSUE-013 — Conversation tightening (10-day audit)
 - ISSUE-014 — Calendar: reads real events then self-interrupts with "schedule is clear" — logical confabulates empty @conf 1.00, un-retired creative speaks then gets overridden, fusion calls it disagreement=False (high, open)
 - ISSUE-015 — Time-bound notifications (calendar/weather/deliberation) expire silently when no presence is detected in their window (occupancy-gated hold → expiry, attempts=0); user-set reminders NOT affected (expiry=None). (low, open)
+- ISSUE-016 — TV control is Plex-only; broaden to power/input/transport/volume (depends on how the TV is exposed in HA). (medium, open)
+- ISSUE-017 — "Iris, STOP": a verbal hard-abort of the current turn (halt speech, cancel in-flight turn, keep_listening=NO) — distinct from acoustic barge-in. (medium, open)
