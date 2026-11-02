@@ -24,3 +24,9 @@ the file and record the fix + commit.
 - ISSUE-007 — Path-2 actuation: ambient/state-expression commands ("make it cozy") (medium, open)
 - ISSUE-008 — Web surface Phase 1: tasks & reminders, hybrid (new initiative, per ADR-002)
 - ISSUE-009 — Perceived latency is governed by VAD endpointing, not cortex first-audio (medium, open)
+- ISSUE-010 — Deep-mode output grooming (medium, deferred)
+- ISSUE-011 — Proactive rail / creative retired (see STATE.md)
+- ISSUE-012 — No-wakeword follow-up & conversation continuity
+- ISSUE-013 — Conversation tightening (10-day audit)
+- ISSUE-014 — Calendar: reads real events then self-interrupts with "schedule is clear" — logical confabulates empty @conf 1.00, un-retired creative speaks then gets overridden, fusion calls it disagreement=False (high, open)
+- ISSUE-015 — Time-bound notifications (calendar/weather/deliberation) expire silently when no presence is detected in their window (occupancy-gated hold → expiry, attempts=0); user-set reminders NOT affected (expiry=None). (low, open)
