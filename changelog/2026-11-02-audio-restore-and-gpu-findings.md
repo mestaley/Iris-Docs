@@ -42,7 +42,9 @@ is now pure surplus, and voice-ai is ready to retire.
   model decision.
 
 ## Follow-ups / owed
+- **DECISION 2026-11-02: GPU1 KEPT** on core-ai for a local deep tier → Iris stays all-local, the
+  **OpenAI/cloud failover is CANCELLED** (not built). Only the 2×5080+4080 are sold; both 5060 Ti stay.
 - **Matt:** confirm a real voice turn (hear→think→speak) when home; retire voice-ai VM 205 (reallocate
-  6c/16GB to core-ai); decide **GPU1: sell vs keep** (keep ⇒ 14B/local deep tier, no cloud failover).
+  6c/16GB to core-ai).
 - Still owed from before: push world-ai `fix/block-lock-domain` (f848fe0) + restart world-ai; the
   iris-docs `main` commits (ahead of origin).

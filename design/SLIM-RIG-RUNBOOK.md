@@ -19,9 +19,10 @@ Matt's workstation for SolidWorks). voice-ai (VM 205) has no GPU.
 **DECISION 2026-11-02 — Option C (collapse voice-ai into core-ai).** STT runs on core-ai GPU1,
 LLM+embed+thalamus on GPU0 (separate cards → zero contention, the original single-GPU risk #1 is
 gone), **Kokoro TTS moves to CPU**. voice-ai VM retired, freeing 6 cores + 16GB to the host (hand to
-core-ai, which is 8c/23GB). **Reopened by having a full 16GB per role:** STT no longer needs trimming
-(Canary-1B full fits GPU1); the front door is no longer capped at 8B (14B fits GPU0); a **local deep
-tier becomes possible again**, so the cloud-API failover is now *optional*, not required.
+core-ai, which is 8c/23GB). **Reopened by having a full 16GB per role:** front door no longer capped at
+8B (14B fits GPU0); a **local deep tier on GPU1** → **DECISION 2026-11-02: stay all-local, keep both
+5060 Ti, cancel the cloud/OpenAI failover.** (STT/TTS turned out to be CPU on audio-ai — see Phase 5 —
+so neither 5060 Ti is needed for audio; both serve the LLM: GPU0 front door, GPU1 deep tier.)
 
 ## Phase 0 — prep while up ✅ (automation, 2026-10-15)
 - [x] Qdrant snapshots (iris_memory/mappings/tools) → `pve-03:~/iris-qdrant-backup/` (4.5MB).
@@ -71,9 +72,9 @@ for audio** (left installed on core-ai; harmless, reusable).
 - [ ] **Retire voice-ai VM 205** (Matt) — now safe; reallocate its 6 cores + 16GB to core-ai (8c/23GB).
 - [ ] **Front-door model decision** (GPU0 is a full 16GB, STT/TTS off-GPU): Hermes-3-8B (incumbent) vs
   qwen3-8B vs **keep qwen2.5:14b** (fits again). Decide, then deploy.
-- [ ] **GPU1 (2nd 5060 Ti) is now pure surplus** — STT/TTS are CPU, LLM needs only GPU0. Decide: **sell
-  it** (adds to the 2×5080+4080 pile) OR **keep on core-ai** for a 14B+ front door / a local deep tier
-  (→ no cloud dependency, OpenAI failover unneeded). This is the main open fork.
+- [x] **GPU1 (2nd 5060 Ti): KEEP on core-ai** (DECISION 2026-11-02). GPU0 = front door (8B or 14B),
+  **GPU1 = local deep tier**. All-local preserved → **OpenAI/cloud failover CANCELLED** (not built).
+  Only the 2×5080 + 4080 are sold; both 5060 Ti stay.
 - [x] Qdrant → localhost (curator repointed; memory-ai retired).
 
 ## Phase 6 — validate, then the irreversible step
@@ -92,6 +93,7 @@ hardware rollback for the sell gate.)
   `iris_mappings`/`iris_tools` during the Qdrant restore. See PRINCIPLES.md → Safety invariants.
 
 ## Open items / decisions
-- ~~STT test audio~~ — **DONE**: 8 Kokoro-synth clips staged on pve-03; WER measured in Phase 5 on the 3060 Ti.
-- ~~Cloud provider~~ — **ChatGPT/OpenAI** (Matt has credits). Escalation-only, reuse the punt path; API key in env.
-- **8B front door:** confirm Hermes-3-8B (incumbent trial) vs qwen3-8B — decide before Phase 5 deploy.
+- ~~STT trim / test audio~~ — **MOOT**: STT is parakeet-0.6b CPU on audio-ai; no GPU, no trim. Confirm WER on a real voice turn.
+- ~~Cloud provider / OpenAI failover~~ — **CANCELLED 2026-11-02**: GPU1 kept for a local deep tier; Iris stays all-local (THESIS boundary NOT crossed).
+- **Front door model:** now unconstrained (GPU0 full 16GB) — Hermes-3-8B vs qwen3-8B vs **qwen2.5:14b** (fits again). Tuning decision, not blocking.
+- **Deep tier on GPU1:** keep qwen3-deep or pick a better 16GB-class local deep model. Later tuning.
